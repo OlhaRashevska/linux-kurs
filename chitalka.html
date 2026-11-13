@@ -1,0 +1,1661 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Linux для пользователя · читалка</title>
+<style>[hidden]{display:none!important} body{margin:0} img{max-width:100%}
+/* Layout: left rail of lessons (a real sequence), one lesson at a time in a reading column; each lesson = idea -> live model -> check */
+:root {
+  --bg: #F2F4F7;
+  --surface: #FFFFFF;
+  --ink: #17202C;
+  --muted: #586477;
+  --line: #D8DEE7;
+  --accent: #2D57CC;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #E3E9FA;
+  --amber: #A85A0A;
+  --amber-soft: #FBEEDD;
+  --ok: #1B7F4B;
+  --ok-soft: #DDF2E6;
+  --bad: #BB3434;
+  --bad-soft: #F8E1E1;
+  --term-bg: #15202D;
+  --term-fg: #D5E0EC;
+  --term-dim: #7F92A8;
+  --tmux: #2E8B57;
+  --f-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E131A; --surface: #161D27; --ink: #E5EBF2; --muted: #96A2B3; --line: #2A3443;
+    --accent: #7E9DF4; --accent-ink: #0E131A; --accent-soft: #1E2A46;
+    --amber: #E59D4C; --amber-soft: #33261A; --ok: #4FC487; --ok-soft: #173326;
+    --bad: #EE7676; --bad-soft: #3A1E22; --term-bg: #0A0F15; --term-fg: #D5E0EC; --term-dim: #71849A;
+    --tmux: #4FC487; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E131A; --surface: #161D27; --ink: #E5EBF2; --muted: #96A2B3; --line: #2A3443;
+  --accent: #7E9DF4; --accent-ink: #0E131A; --accent-soft: #1E2A46;
+  --amber: #E59D4C; --amber-soft: #33261A; --ok: #4FC487; --ok-soft: #173326;
+  --bad: #EE7676; --bad-soft: #3A1E22; --term-bg: #0A0F15; --term-fg: #D5E0EC; --term-dim: #71849A;
+  --tmux: #4FC487; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.6; }
+h1, h2, h3 { font-family: var(--f-display); line-height: 1.2; text-wrap: balance; margin: 0; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.55rem; }
+h3 { font-size: 1.12rem; }
+p { margin: 0; }
+code, .mono { font-family: var(--f-mono); font-size: .92em; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.app { display: grid; grid-template-columns: 270px minmax(0, 1fr); min-height: 100vh; }
+.rail { border-right: 1px solid var(--line); background: var(--surface); padding-block: 28px; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: 20px; position: sticky; top: 0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; gap: 22px; }
+.brand { display: flex; flex-direction: column; gap: 4px; }
+.brand .kicker { font-family: var(--f-mono); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.brand h1 { font-size: 1.35rem; }
+.nav { display: flex; flex-direction: column; gap: 2px; list-style: none; margin: 0; padding: 0; }
+.nav a { display: grid; grid-template-columns: 28px 1fr 18px; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; color: var(--ink); text-decoration: none; font-size: .95rem; }
+.nav a:hover { background: var(--accent-soft); }
+.nav a[aria-current="page"] { background: var(--accent); color: var(--accent-ink); }
+.nav .n { font-family: var(--f-mono); font-size: .78rem; opacity: .75; }
+.nav .done { font-size: .8rem; color: var(--ok); }
+.nav a[aria-current="page"] .done { color: var(--accent-ink); }
+.progress-box { margin-top: auto; font-size: .85rem; color: var(--muted); display: flex; flex-direction: column; gap: 6px; }
+.bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--ok); width: 0; transition: width .4s; }
+
+main { padding-block: 40px 80px; padding-left: max(16px, 4vw); padding-right: max(16px, env(safe-area-inset-right, 0px), 4vw); }
+.lesson { max-width: 780px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+.lesson-head { display: flex; flex-direction: column; gap: 10px; }
+.eyebrow { font-family: var(--f-mono); font-size: .75rem; letter-spacing: .09em; text-transform: uppercase; color: var(--amber); }
+.lead { font-size: 1.12rem; color: var(--muted); max-width: 65ch; }
+.prose { display: flex; flex-direction: column; gap: 14px; max-width: 68ch; }
+.prose ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 6px; }
+.big-idea { border-left: 4px solid var(--amber); background: var(--amber-soft); padding: 14px 18px; border-radius: 0 10px 10px 0; max-width: 68ch; }
+.big-idea b { font-family: var(--f-display); }
+.trap { border: 1px dashed var(--bad); background: var(--bad-soft); padding: 12px 16px; border-radius: 10px; max-width: 68ch; }
+.trap b { color: var(--bad); }
+
+.lab { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.lab-title { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.lab-title .tag { font-family: var(--f-mono); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; padding: 1px 6px; }
+.lab-hint { color: var(--muted); font-size: .92rem; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.btn { border: 1px solid var(--line); background: var(--bg); padding: 7px 13px; border-radius: 8px; font-size: .92rem; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.warn { border-color: var(--bad); color: var(--bad); background: transparent; }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+.btn.on { background: var(--accent-soft); border-color: var(--accent); }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.card { border: 1px solid var(--line); border-radius: 10px; padding: 12px; text-align: left; background: var(--bg); display: flex; flex-direction: column; gap: 4px; }
+.card.sel { border-color: var(--accent); background: var(--accent-soft); }
+.card .who { font-family: var(--f-display); font-weight: 700; }
+.card .what { font-size: .82rem; color: var(--muted); }
+.detail { border-top: 1px solid var(--line); padding-top: 14px; display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; font-size: .95rem; }
+.detail dt { color: var(--muted); }
+.detail dd { margin: 0; }
+
+.tablewrap { overflow-x: auto; }
+table.matrix { border-collapse: collapse; font-size: .93rem; min-width: 420px; }
+.matrix th, .matrix td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: center; }
+.matrix th:first-child, .matrix td:first-child { text-align: left; }
+.matrix thead th { font-weight: 600; color: var(--muted); font-size: .82rem; }
+.pill { display: inline-block; font-size: .78rem; font-weight: 600; padding: 2px 9px; border-radius: 99px; }
+.pill.yes { background: var(--ok-soft); color: var(--ok); }
+.pill.no { background: var(--bad-soft); color: var(--bad); }
+.pill.mid { background: var(--amber-soft); color: var(--amber); }
+.filecard { font-family: var(--f-mono); font-size: .9rem; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+
+.permgrid { display: grid; grid-template-columns: max-content repeat(3, 1fr); gap: 8px; align-items: center; }
+.permgrid .lbl { font-size: .9rem; }
+.permgrid .lbl small { display: block; color: var(--muted); font-size: .78rem; }
+.permgrid .colh { font-family: var(--f-mono); text-align: center; color: var(--muted); font-size: .8rem; }
+.bit { font-family: var(--f-mono); font-weight: 600; border: 1px solid var(--line); border-radius: 8px; padding: 8px 0; background: var(--bg); }
+.bit.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.permstr { font-family: var(--f-mono); font-size: 1.5rem; letter-spacing: .06em; display: flex; flex-wrap: wrap; gap: 14px; align-items: baseline; }
+.permstr span.o { color: var(--muted); font-size: 1rem; }
+.verdicts { display: grid; gap: 8px; }
+.verdict { display: grid; grid-template-columns: minmax(120px, 180px) 1fr; gap: 10px; align-items: start; font-size: .93rem; }
+.verdict .who { font-weight: 600; }
+.verdict .acts { display: flex; flex-wrap: wrap; gap: 6px; }
+.warns { display: flex; flex-direction: column; gap: 6px; }
+.warn-line { font-size: .9rem; color: var(--bad); }
+
+.term { background: var(--term-bg); color: var(--term-fg); font-family: var(--f-mono); font-size: .85rem; border-radius: 10px; padding: 14px; min-height: 120px; display: flex; flex-direction: column; gap: 3px; overflow-x: auto; }
+.term .dim { color: var(--term-dim); }
+.term .hl { color: #F0B35A; }
+.term .ok { color: #6FD39C; }
+.term .bad { color: #F08A8A; }
+
+.ptree { display: flex; flex-direction: column; gap: 6px; font-size: .93rem; }
+.pnode { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; background: var(--bg); text-align: left; }
+.pnode.sel { border-color: var(--accent); background: var(--accent-soft); }
+.pnode.dead { opacity: .5; text-decoration: line-through; }
+.pnode .pid { font-family: var(--f-mono); font-size: .78rem; color: var(--muted); }
+.pnode .owner { font-size: .78rem; color: var(--muted); }
+
+.jobs { display: flex; flex-direction: column; gap: 8px; }
+.job { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--bg); }
+.job .name { font-weight: 600; }
+.job .jbar { grid-column: 1 / -1; height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.job .jbar i { display: block; height: 100%; background: var(--accent); }
+.job.fg { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+.kb { font-size: .9rem; padding: 10px 12px; border-radius: 8px; background: var(--accent-soft); }
+
+.net { display: grid; grid-template-columns: 1fr 90px 1.4fr; gap: 0; align-items: stretch; }
+.box { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--bg); display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.box h4 { margin: 0; font-family: var(--f-display); font-size: .95rem; }
+.link { display: flex; align-items: center; justify-content: center; position: relative; }
+.link::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 3px solid var(--ok); }
+.link.cut::before { border-top: 3px dashed var(--bad); }
+.link span { position: relative; background: var(--surface); padding: 0 6px; font-size: .75rem; color: var(--muted); }
+.inner { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: var(--surface); font-size: .88rem; display: flex; flex-direction: column; gap: 6px; }
+.inner.tmux { border-color: var(--tmux); }
+.inner.tmux > .t { color: var(--tmux); font-weight: 600; }
+.inner.dead { opacity: .5; text-decoration: line-through; }
+
+.tmuxwin { border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: var(--term-bg); }
+.panes { display: grid; gap: 2px; background: var(--tmux); min-height: 180px; }
+.pane { background: var(--term-bg); color: var(--term-fg); font-family: var(--f-mono); font-size: .8rem; padding: 10px; border: 0; text-align: left; display: flex; flex-direction: column; gap: 2px; }
+.pane.act { outline: 2px solid var(--tmux); outline-offset: -2px; }
+.pane .dim { color: var(--term-dim); }
+.status { background: var(--tmux); color: #0B1A12; font-family: var(--f-mono); font-size: .8rem; display: flex; flex-wrap: wrap; gap: 2px 12px; padding: 4px 10px; }
+.status b { font-weight: 600; }
+.status .w { cursor: pointer; background: none; border: 0; padding: 0; color: inherit; font: inherit; }
+.status .w.act { text-decoration: underline; font-weight: 700; }
+
+.layers { display: flex; flex-direction: column; gap: 6px; }
+.layer { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "n tag" "d tag"; gap: 0 12px; align-items: center; text-align: left; border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; background: var(--bg); }
+.layer b { grid-area: n; font-family: var(--f-display); }
+.layer > span:not(.same):not(.diff) { grid-area: d; font-size: .85rem; color: var(--muted); }
+.layer .same, .layer .diff { grid-area: tag; font-size: .72rem; font-weight: 600; padding: 2px 8px; border-radius: 99px; }
+.layer .same { background: var(--ok-soft); color: var(--ok); }
+.layer .diff { background: var(--amber-soft); color: var(--amber); }
+.layer.kernel { border-width: 2px; border-color: var(--amber); }
+.layer.sel { background: var(--accent-soft); border-color: var(--accent); }
+.layer-info { font-size: .95rem; border-top: 1px solid var(--line); padding-top: 12px; max-width: 68ch; }
+.navpart { font-family: var(--f-mono); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--amber); padding: 12px 10px 4px; white-space: nowrap; }
+.rank { font-family: var(--f-display); font-weight: 700; color: var(--accent); font-size: 1rem; }
+.inp { font: inherit; font-family: var(--f-mono); font-size: .92rem; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; flex: 1 1 220px; min-width: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; border-radius: 8px; padding: 6px 10px; border: 1px solid var(--line); background: var(--bg); }
+.chip code { font-weight: 600; }
+.chip small { font-size: .7rem; color: var(--muted); }
+.chip.cmd { border-color: var(--accent); background: var(--accent-soft); }
+.chip.opt { border-color: var(--amber); background: var(--amber-soft); }
+.chip.arg { border-color: var(--ok); background: var(--ok-soft); }
+.chip.sudo { border-color: var(--bad); background: var(--bad-soft); }
+.steps { display: flex; flex-direction: column; gap: 8px; }
+.step { display: flex; gap: 12px; align-items: flex-start; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--bg); cursor: pointer; }
+.step input { margin-top: 5px; width: 18px; height: 18px; }
+.step.done { border-color: var(--ok); background: var(--ok-soft); }
+.tasks { display: flex; flex-direction: column; gap: 4px; font-size: .93rem; }
+.task.ok { color: var(--ok); font-weight: 600; }
+.card.hiddenf { opacity: .7; border-style: dashed; }
+.vim { background: var(--term-bg); color: var(--term-fg); font-family: var(--f-mono); font-size: .88rem; border-radius: 10px; overflow: hidden; }
+.vbuf { padding: 12px; white-space: pre-wrap; min-height: 100px; }
+.vbar { padding: 4px 12px; background: rgba(255,255,255,.08); min-height: 1.6em; }
+.vmode { padding: 4px 12px; font-size: .75rem; color: var(--term-dim); }
+.sorter { display: flex; flex-direction: column; gap: 8px; }
+.sort-item { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--bg); display: flex; flex-direction: column; gap: 8px; }
+.ex ol { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 4px; }
+.examples { display: grid; gap: 10px; }
+.ex { border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: var(--surface); display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.ex .sit { font-weight: 600; }
+.ex .term, .q .term { display: block; white-space: pre; min-height: 0; }
+.review { border: 2px dashed var(--accent); border-radius: 14px; padding: 18px; background: var(--accent-soft); display: flex; flex-direction: column; gap: 12px; }
+.from { font-family: var(--f-mono); font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; color: var(--amber); }
+.qpts { margin-left: 8px; font-size: .8rem; font-weight: 700; color: var(--ok); }
+.lstatus { border: 1px solid var(--amber); background: var(--amber-soft); border-radius: 10px; padding: 12px 16px; }
+.lstatus.full { border-color: var(--ok); background: var(--ok-soft); }
+.nav a.locked { opacity: .55; }
+.score { font-family: var(--f-display); font-size: 1.05rem; color: var(--ink); }
+.quiz { display: flex; flex-direction: column; gap: 14px; }
+.q { border: 1px solid var(--line); border-radius: 12px; padding: 16px; background: var(--surface); display: flex; flex-direction: column; gap: 10px; }
+.q .qt { font-weight: 600; }
+.opts { display: flex; flex-direction: column; gap: 6px; }
+.opt { text-align: left; border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 9px 12px; }
+.opt:hover { border-color: var(--accent); }
+.opt.right { border-color: var(--ok); background: var(--ok-soft); }
+.opt.wrong { border-color: var(--bad); background: var(--bad-soft); }
+.why { font-size: .92rem; color: var(--muted); }
+.why.ok { color: var(--ok); }
+.why.bad { color: var(--bad); }
+
+.pager { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 20px; }
+.pager a { text-decoration: none; color: var(--accent); font-weight: 600; }
+.map { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+.map a { text-decoration: none; color: inherit; border: 1px solid var(--line); border-radius: 10px; padding: 14px; background: var(--surface); display: flex; flex-direction: column; gap: 4px; }
+.map a:hover { border-color: var(--accent); }
+.map .n { font-family: var(--f-mono); font-size: .75rem; color: var(--amber); }
+.map b { font-family: var(--f-display); }
+.map small { color: var(--muted); }
+
+@media (max-width: 820px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .rail { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line); padding-block: 16px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); gap: 12px; }
+  .nav { flex-direction: row; overflow-x: auto; gap: 4px; padding-bottom: 4px; }
+  .nav a { grid-template-columns: auto auto auto; white-space: nowrap; }
+  .progress-box { margin-top: 0; }
+  main { padding-block: 24px 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  h1 { font-size: 1.6rem; }
+  .net { grid-template-columns: minmax(0, 1fr); }
+  .link { height: 44px; }
+  .link::before { left: 50%; right: auto; top: 0; bottom: 0; border-top: 0; border-left: 3px solid var(--ok); }
+  .link.cut::before { border-top: 0; border-left: 3px dashed var(--bad); }
+  .verdict { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .permgrid { grid-template-columns: minmax(0, 1.3fr) repeat(3, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+.wrap { max-width: 780px; margin: 0 auto; padding-block: 24px 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 48px; }
+.toc { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+.toc ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 4px; }
+.toc a { display: block; padding: 6px 8px; border-radius: 6px; color: var(--ink); text-decoration: none; }
+.toc a:hover { background: var(--accent-soft); }
+.toc .n { font-family: var(--f-mono); color: var(--amber); font-size: .8rem; }
+.ropt { border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+.ropt summary { padding: 9px 12px; cursor: pointer; }
+.ropt[open] { border-color: var(--accent); }
+.ropt p { padding: 0 12px 10px; margin: 0; font-size: .93rem; }
+.v-ok { color: var(--ok); } .v-bad { color: var(--bad); }
+.totop a { color: var(--accent); font-size: .9rem; }
+.lesson { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" id="toc">
+<span class="eyebrow">Версия для чтения на телефоне</span>
+<h1>Linux для пользователя</h1>
+<p class="lab-hint">Все уроки на одной странице. Нажмите на вариант ответа, чтобы увидеть, верный ли он, и объяснение. Модели с кнопками, баллы, замки и экзамен есть только в полной версии на компьютере.</p>
+<ol><li><a href="#start"><span class="n">0</span> Начало</a></li><li><a href="#arch"><span class="n">1</span> Устройство</a></li><li><a href="#users"><span class="n">2</span> Пользователи</a></li><li><a href="#groups"><span class="n">3</span> Группы</a></li><li><a href="#perms"><span class="n">4</span> Права</a></li><li><a href="#procs"><span class="n">5</span> Процессы</a></li><li><a href="#jobs"><span class="n">6</span> Фон</a></li><li><a href="#tmux"><span class="n">7</span> tmux</a></li><li><a href="#sandbox"><span class="n">8</span> Песочница</a></li><li><a href="#paths"><span class="n">9</span> Где я: пути</a></li><li><a href="#cmd"><span class="n">10</span> Команда</a></li><li><a href="#files"><span class="n">11</span> Файлы</a></li><li><a href="#edit"><span class="n">12</span> Читать и править</a></li><li><a href="#errors"><span class="n">13</span> Ошибки</a></li><li><a href="#sudo"><span class="n">14</span> sudo и SSH</a></li><li><a href="#habits"><span class="n">15</span> Привычки</a></li><li><a href="#final"><span class="n">16</span> Итог</a></li></ol>
+</nav>
+
+  <article class="lesson" id="start">
+    <header class="lesson-head">
+      <span class="eyebrow">Начало</span>
+      <h2>Как устроен Linux, если смотреть не глазами админа</h2>
+      <p class="lead">Команды забываются, а устройство нет. Курс в двух частях. Первая — как Linux устроен: кто вы, что вам можно, кто работает от вашего имени и как не потерять работу при обрыве связи. Вторая — как жить на сервере: папки, команды, файлы, редакторы, ошибки, sudo и SSH, безопасные привычки. В конце экзамен на звание «Почти админ».</p>
+    </header>
+    <div class="big-idea"><b>Одна картинка на весь курс.</b> Linux похож на большой общий дом. В нём живут <b>пользователи</b>, у каждого своя комната. Жильцы объединяются в <b>группы</b>, как в клубы. На каждой двери и каждом шкафу висит табличка: кто сюда может войти и что тут можно делать. Это <b>права</b>. А всю работу в доме делают <b>процессы</b>, работники, которые действуют от имени конкретного жильца и с его ключами.</div>
+    <div class="prose">
+      <p>Каждый урок устроен одинаково: повторялка по прошлым урокам, идея, живая модель, примеры из жизни с настоящим выводом терминала, вопросы по примерам и итоговые вопросы.</p>
+      <ul>
+        <li><b>Следующий урок закрыт</b>, пока на все вопросы текущего не дан верный ответ. Ошибаться можно, но идти дальше можно только со 100%.</li>
+        <li><b>Баллы.</b> Верно с первого раза +10, со второго +5, потом +1. В повторялке верно с первого раза +3.</li>
+        <li><b>Повторялка</b> возвращает вопросы, на которых вы ошиблись, сразу, а верные через 1, 3, 7 и 14 дней. Раздел «Повторялка» в меню собирает их из всех пройденных уроков.</li>
+        <li>Прогресс и баллы хранятся в этом браузере. В другом браузере или телефоне счёт начнётся заново.</li>
+      </ul>
+    </div>
+    
+  </article>
+<p class="totop"><a href="#toc">↑ к оглавлению</a></p>
+
+  <article class="lesson" id="arch">
+    <header class="lesson-head">
+      <span class="eyebrow">Урок 1 · Устройство</span>
+      <h2>Linux — это слоёный пирог, и главный слой в середине</h2>
+      <p class="lead">Чтобы понимать, что происходит, а не просто нажимать кнопки, нужно знать, из каких частей состоит система и кто за что отвечает.</p>
+    </header>
+    <div class="prose">
+      <p>Система устроена слоями. Каждый слой пользуется только соседним, нижним:</p>
+      <ul>
+        <li><b>Железо.</b> Процессор, память, диск, сеть, клавиатура.</li>
+        <li><b>Ядро.</b> Это и есть Linux в строгом смысле слова. Единственная программа, которой разрешено напрямую трогать железо. Оно запускает и останавливает процессы, делит между ними память и процессор, хранит файлы и <b>проверяет права</b> при каждом обращении.</li>
+        <li><b>Системные службы и утилиты.</b> Программы, которые запускаются при старте: сеть, журналы, вход пользователей, планировщик. Сюда же относятся маленькие программы-инструменты, которые вызывают из терминала.</li>
+        <li><b>Оболочка или рабочий стол.</b> То, через что вы общаетесь с системой. Оболочка (bash) читает ваши команды в терминале. Графический рабочий стол рисует окна и значки. И то и другое — обычные программы, а не часть ядра.</li>
+        <li><b>Ваши программы.</b> Браузер, редактор, сайт, бот.</li>
+      </ul>
+    </div>
+    <div class="big-idea"><b>Главное.</b> Ни одна программа не трогает диск или сеть сама. Она <b>просит ядро</b>: «открой мне этот файл». Ядро проверяет, под каким пользователем работает программа и есть ли у него права, и только потом выполняет просьбу. Поэтому права нельзя обойти, просто взяв другую программу: проверяет не программа, а ядро.</div>
+    
+    
+    <div class="prose">
+      <h3>Дистрибутив: ядро плюс набор программ</h3>
+      <p>Одно ядро Linux никто не ставит. Его собирают вместе со службами, оболочкой, программами и <b>менеджером пакетов</b> (магазином, откуда ставят и обновляют программы). Такая сборка называется <b>дистрибутивом</b>: Ubuntu, Debian, Fedora, Red Hat и другие. Ядро и устройство у них одинаковые, различаются выбор программ, способ установки и привычки.</p>
+      <h3>Компьютер и сервер: одна система, разные верхние слои</h3>
+      <div class="tablewrap"><table class="matrix">
+        <thead><tr><th></th><th>Linux на компьютере</th><th>Linux на сервере</th></tr></thead>
+        <tbody>
+          <tr><td>Верхний слой</td><td>графический рабочий стол</td><td>обычно только терминал</td></tr>
+          <tr><td>Как работают</td><td>сидят за ним</td><td>подключаются по сети</td></tr>
+          <tr><td>Кто пользуется</td><td>обычно один человек</td><td>много людей и служб сразу</td></tr>
+          <tr><td>Что запущено</td><td>браузер, документы</td><td>сайты, базы, боты, круглосуточно</td></tr>
+          <tr><td>Ядро, права, процессы</td><td colspan="2">одинаковые</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Чем это отличается от Windows</h3>
+      <p>В Windows графика вшита в систему: без окон её почти не бывает. В Linux графический рабочий стол — просто ещё один слой программ. Его можно поставить, убрать или заменить другим, а система под ним не изменится. Поэтому на серверах его обычно и нет: он только тратит память.</p>
+      <h3>Терминал и оболочка — разные вещи</h3>
+      <p><b>Терминал</b> — это окно, которое показывает текст и передаёт ваши нажатия клавиш. <b>Оболочка</b> — программа внутри него, которая понимает команды и просит ядро запускать процессы. Терминал похож на телефонную трубку, а оболочка на собеседника на том конце.</p>
+      <h3>«Всё есть файл»</h3>
+      <p>Linux старается представлять всё одинаково, в виде файлов: документы, настройки (обычные текстовые файлы), даже устройства вроде диска. Поэтому одни и те же права и одни и те же инструменты работают почти для всего.</p>
+    </div>
+    <h3>Примеры из жизни</h3>
+    <div class="examples">
+      <div class="ex"><p class="sit">Вы подключились к серверу, а там нет окон и мышки, только чёрный экран с текстом.</p><div class="term">anna@server:~$ _</div><p><b>Что происходит.</b> На сервере не установлен верхний слой, рабочий стол. Вы сразу попали в оболочку. Всё, что ниже (ядро, пользователи, права), такое же, как на компьютере.</p></div>
+      <div class="ex"><p class="sit">Программа пишет ошибку при открытии файла.</p><div class="term">cat: /home/oleg/zarplata.txt: Permission denied</div><p><b>Что происходит.</b> Программа <code>cat</code> попросила ядро открыть файл, а ядро отказало: у вашего пользователя нет прав. Отказала не программа, а ядро, поэтому любая другая программа получит такой же ответ.</p></div>
+      <div class="ex"><p class="sit">Коллега говорит: «У меня Debian, а у тебя Ubuntu, я не смогу помочь».</p><p><b>Что происходит.</b> Сможет. Ядро одно и то же, пользователи, права, процессы и tmux работают одинаково. Различаются в основном способ установки программ и мелочи настроек.</p></div>
+    </div>
+    <section class="quiz">
+      <h3>Проверь себя на примерах</h3>
+      <div class="q" data-q>
+        <p class="qt">Какая часть системы единственная работает с железом напрямую?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Браузер</summary><p><b class="v-bad">✗ Неверно.</b> Браузер только просит ядро, сам к железу не обращается.</p></details>
+          <details class="ropt"><summary>Ядро</summary><p><b class="v-ok">✓ Верно.</b> Верно. Ядро — единственный слой с прямым доступом к процессору, памяти и диску.</p></details>
+          <details class="ropt"><summary>Рабочий стол</summary><p><b class="v-bad">✗ Неверно.</b> Рабочий стол — программы сверху, на сервере его вообще нет.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Анне показали такую ошибку. Она открывает тот же файл другой программой. Что будет?</p>
+        <div class="term">Permission denied</div>
+        <div class="opts">
+          <details class="ropt"><summary>Откроется: другая программа может не проверять права</summary><p><b class="v-bad">✗ Неверно.</b> Права проверяет не программа, а ядро, и через него идут все программы.</p></details>
+          <details class="ropt"><summary>Снова отказ: права проверяет ядро</summary><p><b class="v-ok">✓ Верно.</b> Верно. Права нельзя обойти, просто сменив программу.</p></details>
+          <details class="ropt"><summary>Откроется, если программа графическая</summary><p><b class="v-bad">✗ Неверно.</b> Графическая или текстовая — всё идёт через ядро.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Что такое дистрибутив: Ubuntu, Debian, Fedora?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Отдельная система со своим ядром, не похожая на Linux</summary><p><b class="v-bad">✗ Неверно.</b> Ядро у всех одно и то же — Linux.</p></details>
+          <details class="ropt"><summary>Сборка: ядро Linux плюс набор программ и способ их ставить</summary><p><b class="v-ok">✓ Верно.</b> Верно. Различаются набор программ и привычки, а устройство одинаковое.</p></details>
+          <details class="ropt"><summary>Графическая оболочка</summary><p><b class="v-bad">✗ Неверно.</b> Это только один из слоёв, его в дистрибутиве может и не быть.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Терминал и оболочка — одно и то же?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Да, два названия одного</summary><p><b class="v-bad">✗ Неверно.</b> Их часто путают, но это разные программы.</p></details>
+          <details class="ropt"><summary>Нет: терминал — окно для текста, оболочка — программа в нём, которая понимает команды</summary><p><b class="v-ok">✓ Верно.</b> Верно. Как телефонная трубка и собеседник на том конце.</p></details>
+          <details class="ropt"><summary>Нет: оболочка — это ядро</summary><p><b class="v-bad">✗ Неверно.</b> Оболочка — обычная программа, она просит ядро запускать процессы.</p></details>
+        </div>
+        
+      </div>
+    </section>
+    <section class="quiz"><h3>Итоговые вопросы урока</h3>
+      <div class="q" data-q>
+        <p class="qt">Кто на самом деле проверяет, можно ли Анне открыть файл?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Программа, которой она открывает файл</summary><p><b class="v-bad">✗ Неверно.</b> Программа только просит. Если бы проверяла она, любую защиту можно было бы обойти, взяв другую программу.</p></details>
+          <details class="ropt"><summary>Ядро</summary><p><b class="v-ok">✓ Верно.</b> Верно. Все обращения к файлам идут через ядро, и проверка делается там.</p></details>
+          <details class="ropt"><summary>Графический рабочий стол</summary><p><b class="v-bad">✗ Неверно.</b> Рабочий стол — просто программа сверху. На сервере его вообще нет, а права работают.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Чем Ubuntu на сервере отличается от Ubuntu на домашнем компьютере?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Ядром: у сервера оно своё, серверное</summary><p><b class="v-bad">✗ Неверно.</b> Ядро то же самое.</p></details>
+          <details class="ropt"><summary>Набором программ сверху: на компьютере есть рабочий стол, на сервере обычно нет</summary><p><b class="v-ok">✓ Верно.</b> Да. Внизу то же ядро, те же пользователи и права. Различаются верхние слои.</p></details>
+          <details class="ropt"><summary>Тем, что на сервере другие правила прав</summary><p><b class="v-bad">✗ Неверно.</b> Права устроены одинаково везде, это работа ядра.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Вы закрыли окно терминала. Что именно закрылось?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Окно, а вместе с ним завершилась оболочка, которая в нём работала</summary><p><b class="v-ok">✓ Верно.</b> Верно. Окно-терминал закрылось, и оболочка внутри него получила сигнал обрыва и завершилась. Подробнее об этом в уроках про процессы и tmux.</p></details>
+          <details class="ropt"><summary>Весь Linux</summary><p><b class="v-bad">✗ Неверно.</b> Linux от этого не выключается, ядро и остальные процессы работают дальше.</p></details>
+          <details class="ropt"><summary>Ядро</summary><p><b class="v-bad">✗ Неверно.</b> Ядро не закрывается вместе с окнами, оно работает, пока работает машина.</p></details>
+        </div>
+        
+      </div>
+    </section>
+  </article>
+<p class="totop"><a href="#toc">↑ к оглавлению</a></p>
+
+  <article class="lesson" id="users">
+    <header class="lesson-head">
+      <span class="eyebrow">Урок 2 · Пользователи</span>
+      <h2>Пользователь — это не человек, а удостоверение</h2>
+      <p class="lead">Linux не знает, кто сидит за клавиатурой. Он знает только, под каким именем вы вошли, и всё решает по этому имени.</p>
+    </header>
+    <div class="prose">
+      <p>Когда вы входите в систему, вам выдают удостоверение. Дальше каждое ваше действие подписано им: открыть файл, запустить программу, удалить папку. Система смотрит на подпись и решает, можно или нельзя.</p>
+      <ul>
+        <li><b>Внутри имя — это номер.</b> Для людей пользователь называется <code>anna</code>, а система хранит его как число, например 1001. Если два имени получили одно число, система считает их одним человеком.</li>
+        <li><b>Не все пользователи — люди.</b> Веб-сервер, база данных, почтовая служба работают под своими отдельными пользователями. Это сделано для безопасности: если взломают веб-сервер, взломщик получит только его скромные права, а не ваши.</li>
+        <li><b>У каждого есть дом.</b> Домашняя папка (<code>/home/anna</code>) принадлежит вам. Там ваши файлы и настройки, и по умолчанию остальные туда не лезут.</li>
+        <li><b>Есть root.</b> Суперпользователь с номером 0. Для него проверки прав почти не делаются. Работать под ним постоянно опасно по той же причине: система не остановит его ошибку.</li>
+      </ul>
+    </div>
+    
+    <div class="big-idea"><b>Главное.</b> Права принадлежат не вам лично и не программе, а удостоверению. Любая программа, которую вы запустили, работает под вашим именем и может ровно то же, что и вы.</div>
+    <h3>Примеры из жизни</h3>
+    <div class="examples">
+      <div class="ex"><p class="sit">Вы спросили систему, кто вы такой. Она показала ваше удостоверение целиком.</p><div class="term">uid=1001(anna) gid=1001(anna) groups=1001(anna),1005(buh)</div><p><b>Как читать.</b> <code>uid</code> — ваш номер и имя. <code>gid</code> — основная группа. <code>groups</code> — все группы, где вы состоите. Здесь Анна в двух группах: своей личной <code>anna</code> и <code>buh</code> (бухгалтерия).</p></div>
+      <div class="ex"><p class="sit">В начале строки терминала видно, кто вы и где.</p><div class="term">anna@server:~$
+root@server:~#</div><p><b>Как читать.</b> До <code>@</code> — пользователь, после — имя машины, <code>~</code> — вы в домашней папке. Знак <code>$</code> значит обычный пользователь, <code>#</code> значит root. Увидели <code>#</code> — будьте осторожны, система вас не остановит.</p></div>
+      <div class="ex"><p class="sit">В списке процессов видно, кто от чьего имени работает.</p><div class="term">www-data  1840  nginx: worker process
+anna      4120  python bot.py
+root         1  systemd</div><p><b>Как читать.</b> Первый столбец — владелец процесса. Веб-сервер работает под <code>www-data</code>, бот Анны — под <code>anna</code>, главный системный процесс — под <code>root</code>.</p></div>
+    </div>
+    <section class="quiz">
+      <h3>Проверь себя на примерах</h3>
+      <div class="q" data-q>
+        <p class="qt">Сколько групп у этого пользователя?</p>
+        <div class="term">uid=1001(anna) gid=1001(anna) groups=1001(anna),1005(buh)</div>
+        <div class="opts">
+          <details class="ropt"><summary>Одна</summary><p><b class="v-bad">✗ Неверно.</b> Посмотрите после слова groups: там две группы через запятую.</p></details>
+          <details class="ropt"><summary>Две</summary><p><b class="v-ok">✓ Верно.</b> Верно: anna (основная) и buh.</p></details>
+          <details class="ropt"><summary>Три</summary><p><b class="v-bad">✗ Неверно.</b> Группа anna упомянута дважды (gid и groups), но это одна и та же группа.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">В строке выше написано <code>uid=1001</code>. Что такое 1001?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Пароль Анны</summary><p><b class="v-bad">✗ Неверно.</b> Пароли так никогда не показываются.</p></details>
+          <details class="ropt"><summary>Номер, под которым система на самом деле знает Анну</summary><p><b class="v-ok">✓ Верно.</b> Верно. Имя нужно людям, а система работает с номером.</p></details>
+          <details class="ropt"><summary>Номер её папки на диске</summary><p><b class="v-bad">✗ Неверно.</b> Это не связано с местом хранения файлов.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Кто вы, если строка терминала выглядит так?</p>
+        <div class="term">root@server:/etc# _</div>
+        <div class="opts">
+          <details class="ropt"><summary>Обычный пользователь в папке /etc</summary><p><b class="v-bad">✗ Неверно.</b> Знак # и имя до @ говорят о другом.</p></details>
+          <details class="ropt"><summary>root, суперпользователь, в папке /etc</summary><p><b class="v-ok">✓ Верно.</b> Верно. Имя root и знак #. Сейчас любая ошибка пройдёт без проверок.</p></details>
+          <details class="ropt"><summary>Пользователь server</summary><p><b class="v-bad">✗ Неверно.</b> server — это имя машины, оно стоит после @.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Сайт взломали, взломщик получил права <code>www-data</code>. До чего он скорее всего НЕ доберётся?</p>
+        <div class="opts">
+          <details class="ropt"><summary>До файлов сайта</summary><p><b class="v-bad">✗ Неверно.</b> Как раз до них доберётся: с ними и работает www-data.</p></details>
+          <details class="ropt"><summary>До личных файлов Анны в /home/anna</summary><p><b class="v-ok">✓ Верно.</b> Верно. Для этого службе и заводят отдельного пользователя.</p></details>
+          <details class="ropt"><summary>Он доберётся до всего</summary><p><b class="v-bad">✗ Неверно.</b> Так было бы, если бы сайт работал под root.</p></details>
+        </div>
+        
+      </div>
+    </section>
+    <section class="quiz"><h3>Итоговые вопросы урока</h3>
+      <div class="q" data-q>
+        <p class="qt">Коллега зашёл на сервер под вашим логином. Что система про него знает?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Что это другой человек, но с вашим паролем</summary><p><b class="v-bad">✗ Неверно.</b> Система не видит человека, она видит удостоверение. Для неё это вы.</p></details>
+          <details class="ropt"><summary>Ничего: для системы это вы, со всеми вашими правами</summary><p><b class="v-ok">✓ Верно.</b> Верно. Linux различает удостоверения, а не людей. Поэтому логином не делятся.</p></details>
+          <details class="ropt"><summary>Что у него урезанные права гостя</summary><p><b class="v-bad">✗ Неверно.</b> Нет, права выдаются удостоверению целиком, урезанных копий не бывает.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Зачем веб-серверу свой отдельный пользователь?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Чтобы он работал быстрее</summary><p><b class="v-bad">✗ Неверно.</b> Скорость тут ни при чём.</p></details>
+          <details class="ropt"><summary>Чтобы при взломе пострадало только то, к чему у него есть доступ</summary><p><b class="v-ok">✓ Верно.</b> Да. Отдельное удостоверение ограничивает ущерб: взломанный сервис может только то, что разрешено ему.</p></details>
+          <details class="ropt"><summary>Чтобы админ мог под ним логиниться</summary><p><b class="v-bad">✗ Неверно.</b> Логиниться под сервисными пользователями люди обычно как раз не должны.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Вы скачали скрипт и запустили его. Какие у него права?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Ваши: всё, что можете вы, может и он</summary><p><b class="v-ok">✓ Верно.</b> Именно. Программа работает под вашим удостоверением, поэтому чужим скриптам стоит доверять осторожно: они могут всё, что можете вы.</p></details>
+          <details class="ropt"><summary>Минимальные, у скачанных файлов свои права</summary><p><b class="v-bad">✗ Неверно.</b> У скриптов нет собственных прав, они берут удостоверение того, кто запустил.</p></details>
+          <details class="ropt"><summary>Права root, раз он что-то устанавливает</summary><p><b class="v-bad">✗ Неверно.</b> Права root программа получает только если её явно запускают от root.</p></details>
+        </div>
+        
+      </div>
+    </section>
+  </article>
+<p class="totop"><a href="#toc">↑ к оглавлению</a></p>
+
+  <article class="lesson" id="groups">
+    <header class="lesson-head">
+      <span class="eyebrow">Урок 3 · Группы</span>
+      <h2>Группа — способ дать доступ многим сразу</h2>
+      <p class="lead">Перечислять людей поимённо на каждом файле неудобно. Поэтому людей собирают в группы, а доступ выдают группе.</p>
+    </header>
+    <div class="prose">
+      <p>Представьте клуб с ключом от общей комнаты. Новый человек вступил в клуб и сразу получил доступ ко всем комнатам клуба. Ушёл из клуба и доступ пропал. Никаких табличек на дверях переписывать не нужно.</p>
+      <ul>
+        <li><b>Один человек, много групп.</b> Анна может быть одновременно в группе бухгалтерии и в группе проекта.</li>
+        <li><b>У каждого файла ровно одна группа.</b> Файл может «принадлежать» одному пользователю и одной группе. Сразу двум группам выдать доступ классическим способом нельзя.</li>
+        <li><b>Основная группа.</b> У каждого пользователя есть группа по умолчанию. Новые файлы, которые вы создаёте, получают её.</li>
+      </ul>
+    </div>
+    
+    <div class="trap"><b>Ловушка, на которой спотыкаются все.</b> Вас добавили в группу, а доступа нет. Причина в том, что список групп записывается в удостоверение в момент входа. Уже открытые терминалы и запущенные программы живут со старым списком. Нужно выйти и войти заново.</div>
+    <h3>Примеры из жизни</h3>
+    <div class="examples">
+      <div class="ex"><p class="sit">Вы посмотрели подробный список файлов в папке.</p><div class="term">-rw-r----- 1 anna buh  2048 zarplaty.xlsx
+-rw-r--r-- 1 oleg dev   512 readme.txt</div><p><b>Как читать.</b> Третий столбец — владелец, четвёртый — группа файла. Первый файл принадлежит Анне и группе <code>buh</code>. Значит, его прочитает любой, кто в группе <code>buh</code>.</p></div>
+      <div class="ex"><p class="sit">Админ сказал «добавил тебя в группу», а в уже открытом терминале ничего не изменилось.</p><div class="term">oleg@server:~$ (в старом окне) groups=1002(oleg),1006(dev)
+oleg@server:~$ (после нового входа) groups=1002(oleg),1006(dev),1005(buh)</div><p><b>Что происходит.</b> Удостоверение выдаётся при входе. Старое окно живёт со старым списком групп. Новый вход — новый список.</p></div>
+    </div>
+    <section class="quiz">
+      <h3>Проверь себя на примерах</h3>
+      <div class="q" data-q>
+        <p class="qt">Какой группе принадлежит этот файл?</p>
+        <div class="term">-rw-r----- 1 anna buh 2048 zarplaty.xlsx</div>
+        <div class="opts">
+          <details class="ropt"><summary>anna</summary><p><b class="v-bad">✗ Неверно.</b> anna — это владелец, третий столбец.</p></details>
+          <details class="ropt"><summary>buh</summary><p><b class="v-ok">✓ Верно.</b> Верно. Группа файла стоит в четвёртом столбце.</p></details>
+          <details class="ropt"><summary>У файла нет группы</summary><p><b class="v-bad">✗ Неверно.</b> У файла классически одна группа.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Олега добавили в группу <code>buh</code> 5 минут назад. В его открытом окне в списке групп её нет. Что делать?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Просить админа добавить ещё раз</summary><p><b class="v-bad">✗ Неверно.</b> Админ всё сделал правильно, просто окно старое.</p></details>
+          <details class="ropt"><summary>Выйти и зайти заново</summary><p><b class="v-ok">✓ Верно.</b> Верно. Новый вход — новое удостоверение с новым списком групп.</p></details>
+          <details class="ropt"><summary>Подождать час</summary><p><b class="v-bad">✗ Неверно.</b> Ждать бесполезно: старое окно никогда не обновит список.</p></details>
+        </div>
+        
+      </div>
+    </section>
+    <section class="quiz"><h3>Итоговые вопросы урока</h3>
+      <div class="q" data-q>
+        <p class="qt">В отдел пришёл новый сотрудник. Как проще всего дать ему доступ к сотне файлов отдела?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Поменять права на каждом из ста файлов</summary><p><b class="v-bad">✗ Неверно.</b> Сработает, но это ровно та работа, которую группы избавляют делать.</p></details>
+          <details class="ropt"><summary>Добавить его в группу отдела</summary><p><b class="v-ok">✓ Верно.</b> Да. Файлы уже открыты для группы, достаточно сделать человека её членом.</p></details>
+          <details class="ropt"><summary>Дать ему пароль от логина начальника</summary><p><b class="v-bad">✗ Неверно.</b> Это даст ему ещё и все права Анны, включая её личные файлы.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Олега только что добавили в группу, но файл всё равно не открывается в его терминале. Почему?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Его текущий сеанс начался до добавления, нужно перезайти</summary><p><b class="v-ok">✓ Верно.</b> Верно. Группы фиксируются при входе. Новый вход выдаст новое удостоверение.</p></details>
+          <details class="ropt"><summary>Нужно перезагрузить весь сервер</summary><p><b class="v-bad">✗ Неверно.</b> Нет, изменения применяются при следующем входе, перезагрузка не нужна.</p></details>
+          <details class="ropt"><summary>Нужно ввести пароль группы</summary><p><b class="v-bad">✗ Неверно.</b> Членство в группе не требует отдельного пароля.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Сколько групп может быть у одного файла?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Сколько угодно</summary><p><b class="v-bad">✗ Неверно.</b> Список групп бывает у пользователя, а у файла классически только одна.</p></details>
+          <details class="ropt"><summary>Одна</summary><p><b class="v-ok">✓ Верно.</b> Да. Один владелец и одна группа. Если нужно больше, используют дополнительные списки доступа, но это уже админская тема.</p></details>
+          <details class="ropt"><summary>Ни одной, группы бывают только у людей</summary><p><b class="v-bad">✗ Неверно.</b> Группа есть всегда, хотя бы основная группа создателя.</p></details>
+        </div>
+        
+      </div>
+    </section>
+  </article>
+<p class="totop"><a href="#toc">↑ к оглавлению</a></p>
+
+  <article class="lesson" id="perms">
+    <header class="lesson-head">
+      <span class="eyebrow">Урок 4 · Права</span>
+      <h2>Три вопроса и три разрешения</h2>
+      <p class="lead">На каждом файле и каждой папке написано, кто владелец, какая группа и что можно делать трём категориям людей.</p>
+    </header>
+    <div class="prose">
+      <p>Категорий ровно три: <b>владелец</b>, <b>члены группы файла</b> и <b>все остальные</b>. Для каждой стоят три разрешения: <b>r</b> (чтение), <b>w</b> (запись), <b>x</b> (выполнение). Отсюда знаменитая строчка из девяти символов вроде <code>rw-r-----</code>.</p>
+      <p>Система проверяет вас по порядку и <b>останавливается на первом совпадении</b>:</p>
+      <ul>
+        <li>Вы владелец? Тогда действуют права владельца, и больше ничего не смотрится.</li>
+        <li>Не владелец, но в группе файла? Действуют права группы.</li>
+        <li>Иначе действуют права «остальных».</li>
+      </ul>
+    </div>
+    <div class="big-idea"><b>Для папки буквы значат другое.</b> Папка — это список имён. <b>r</b> позволяет прочитать этот список. <b>w</b> позволяет его менять: создавать, переименовывать и <b>удалять</b> файлы. <b>x</b> позволяет войти в папку и пройти сквозь неё к файлам. Отсюда неожиданное следствие: удалить файл можно, имея право записи в папку, даже если сам файл вам писать нельзя.</div>
+    
+    <div class="trap"><b>Ловушка.</b> Если у владельца прав меньше, чем у группы, владелец всё равно получает только свои. Проверка остановилась на первом вопросе, до группы она не дошла. Попробуйте в конструкторе шаблон «Странный».</div>
+    <h3>Примеры из жизни</h3>
+    <div class="examples">
+      <div class="ex"><div class="term">-rwxr-xr-x 1 anna dev 900 deploy.sh</div><p><b>Как читать.</b> Первый символ <code>-</code> значит файл (у папки там <code>d</code>). Дальше три тройки: владелец <code>rwx</code> (всё), группа <code>r-x</code> (читать и запускать), остальные <code>r-x</code>. В цифрах это 755: типичный скрипт, который все могут запустить, а менять только Анна.</p></div>
+      <div class="ex"><div class="term">drwx------ 12 anna anna 4096 /home/anna</div><p><b>Как читать.</b> Папка, у владельца всё, у остальных ничего. Никто, кроме Анны (и root), не увидит, что внутри, и не войдёт. Так обычно и защищают домашнюю папку.</p></div>
+      <div class="ex"><div class="term">drwxrwxrwt 20 root root 4096 /tmp</div><p><b>Как читать.</b> Общая папка для временных файлов: писать могут все. Но в конце стоит <code>t</code>, особый флаг. Он запрещает удалять чужие файлы, хотя право записи в папку есть у всех. Это и есть защита из третьего вопроса ниже.</p></div>
+      <div class="ex"><p class="sit">Цифры вместо букв: r = 4, w = 2, x = 1, их складывают для каждой тройки.</p><div class="term">600 = rw- --- ---   личный файл
+644 = rw- r-- r--   все читают, пишет владелец
+755 = rwx r-x r-x   программа или открытая папка</div></div>
+    </div>
+    <section class="quiz">
+      <h3>Проверь себя на примерах</h3>
+      <div class="q" data-q>
+        <p class="qt">Посторонний пользователь (не владелец и не из группы) видит этот файл. Что он может?</p>
+        <div class="term">-rw-r--r-- 1 anna buh 300 spisok.txt</div>
+        <div class="opts">
+          <details class="ropt"><summary>Только читать</summary><p><b class="v-ok">✓ Верно.</b> Верно. Последняя тройка r--: только чтение.</p></details>
+          <details class="ropt"><summary>Читать и изменять</summary><p><b class="v-bad">✗ Неверно.</b> w есть только у владельца, в первой тройке.</p></details>
+          <details class="ropt"><summary>Ничего</summary><p><b class="v-bad">✗ Неверно.</b> В последней тройке есть r, значит читать можно.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Олег (не владелец, не в группе anna) пытается посмотреть, что лежит в этой папке. Что будет?</p>
+        <div class="term">drwx------ 12 anna anna 4096 /home/anna</div>
+        <div class="opts">
+          <details class="ropt"><summary>Увидит имена файлов</summary><p><b class="v-bad">✗ Неверно.</b> Для чтения списка нужно r у «остальных», а там ---.</p></details>
+          <details class="ropt"><summary>Получит отказ: Permission denied</summary><p><b class="v-ok">✓ Верно.</b> Верно. У остальных ---, значит Permission denied.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Что означают права 600?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Владелец читает и пишет, остальным ничего</summary><p><b class="v-ok">✓ Верно.</b> Верно. 6 = 4+2 = rw для владельца, а группе и остальным 0, то есть ничего.</p></details>
+          <details class="ropt"><summary>Владелец может всё, включая запуск</summary><p><b class="v-bad">✗ Неверно.</b> 7 означало бы rwx, а 6 — это rw.</p></details>
+          <details class="ropt"><summary>Все могут читать и писать</summary><p><b class="v-bad">✗ Неверно.</b> Первая цифра — владелец, а не все.</p></details>
+        </div>
+        
+      </div>
+    </section>
+    <section class="quiz"><h3>Итоговые вопросы урока</h3>
+      <div class="q" data-q>
+        <p class="qt">Файл <code>r--rw----</code>, владелец Анна, Анна состоит в группе файла. Может ли Анна его изменить?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Да, через права группы</summary><p><b class="v-bad">✗ Неверно.</b> Группа даёт w, но до группы проверка не доходит: Анна совпала как владелец.</p></details>
+          <details class="ropt"><summary>Нет, для неё действует только r-- владельца</summary><p><b class="v-ok">✓ Верно.</b> Верно. Анна владелец, значит действует только r--. Чтобы писать, ей нужно сначала изменить права, это владелец сделать может.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">У папки права для вас <code>r--</code> (без x). Что получится?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Можно открывать любые файлы внутри</summary><p><b class="v-bad">✗ Неверно.</b> Для открытия файла нужно пройти сквозь папку, а это x.</p></details>
+          <details class="ropt"><summary>Увидите имена файлов, но открыть ни один не сможете</summary><p><b class="v-ok">✓ Верно.</b> Да. Список имён прочитать можно, а войти и добраться до содержимого нельзя.</p></details>
+          <details class="ropt"><summary>Сможете удалять файлы</summary><p><b class="v-bad">✗ Неверно.</b> Удаление требует w на папку.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Файл защищён от записи для вас, но у папки, где он лежит, для вас есть w и x. Можете ли вы его удалить?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Да, удаление зависит от прав папки</summary><p><b class="v-ok">✓ Верно.</b> Верно. Удаление меняет список папки, а не файл. Решает право записи в папку. Поэтому в общих папках вроде /tmp включают особый флаг, который это запрещает.</p></details>
+          <details class="ropt"><summary>Нет, файл защищён</summary><p><b class="v-bad">✗ Неверно.</b> Права файла защищают его содержимое, но не запись о нём в папке.</p></details>
+        </div>
+        
+      </div>
+    </section>
+  </article>
+<p class="totop"><a href="#toc">↑ к оглавлению</a></p>
+
+  <article class="lesson" id="procs">
+    <header class="lesson-head">
+      <span class="eyebrow">Урок 5 · Процессы</span>
+      <h2>Программа лежит, процесс работает</h2>
+      <p class="lead">Файл программы на диске — это рецепт. Процесс — это повар, который прямо сейчас по нему готовит. По одному рецепту могут работать десять поваров одновременно.</p>
+    </header>
+    <div class="prose">
+      <p>У каждого процесса есть три важные вещи:</p>
+      <ul>
+        <li><b>Номер (PID).</b> Уникальный, пока процесс жив. По нему к процессу обращаются.</li>
+        <li><b>Владелец.</b> Удостоверение, под которым он работает. Отсюда его права на файлы. Чужие процессы трогать вы не можете, свои можете.</li>
+        <li><b>Родитель.</b> Каждый процесс кем-то запущен. Терминал запускает оболочку, оболочка запускает ваши программы. Получается дерево. Дети наследуют от родителя удостоверение, текущую папку и окружение.</li>
+      </ul>
+      <p>Процессам можно посылать <b>сигналы</b>, короткие сообщения. Самые важные: «пожалуйста, завершись» (программа может сохраниться и аккуратно выйти), «умри немедленно» (программа не успеет ничего сделать), «замри» и «продолжай». А когда терминал закрывается, всем его детям приходит сигнал «связь оборвалась», и большинство программ на него завершаются.</p>
+    </div>
+    
+    <div class="big-idea"><b>Главное.</b> «Убить немедленно» — последнее средство. Программа не успевает сохранить данные и убрать за собой. Сначала всегда просят вежливо.</div>
+    <h3>Примеры из жизни</h3>
+    <div class="examples">
+      <div class="ex"><p class="sit">Список процессов: кто, номер, что запущено.</p><div class="term">USER      PID  COMMAND
+anna     4102  -bash
+anna     4120  python bot.py
+oleg     5210  vim notes.txt</div><p><b>Как читать.</b> Бот Анны — процесс с номером 4120, работает под <code>anna</code>. Анна может послать ему сигнал. Редактор Олега (5210) ей не подвластен: он под удостоверением <code>oleg</code>.</p></div>
+      <div class="ex"><p class="sit">Программа зависла и не отвечает.</p><p><b>Порядок действий.</b> Сначала вежливо попросить завершиться: у программы будет шанс сохраниться. Подождать несколько секунд. Не помогло — только тогда убить немедленно.</p></div>
+      <div class="ex"><p class="sit">Попытка остановить чужой процесс.</p><div class="term">kill: (5210) - Operation not permitted</div><p><b>Что происходит.</b> Ядро проверило: процесс принадлежит <code>oleg</code>, а просит <code>anna</code>. Отказ, как с чужими файлами.</p></div>
+    </div>
+    <section class="quiz">
+      <h3>Проверь себя на примерах</h3>
+      <div class="q" data-q>
+        <p class="qt">Под каким пользователем работает процесс 5210 и с какими правами?</p>
+        <div class="term">oleg     5210  vim notes.txt</div>
+        <div class="opts">
+          <details class="ropt"><summary>Под oleg, с правами Олега</summary><p><b class="v-ok">✓ Верно.</b> Верно. Первый столбец — владелец, от него и права.</p></details>
+          <details class="ropt"><summary>Под vim</summary><p><b class="v-bad">✗ Неверно.</b> vim — это программа, а не пользователь.</p></details>
+          <details class="ropt"><summary>Под root</summary><p><b class="v-bad">✗ Неверно.</b> root здесь не упоминается, процесс запустил Олег.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Редактор с несохранённым текстом завис. Что сделать первым?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Убить немедленно</summary><p><b class="v-bad">✗ Неверно.</b> Это последнее средство: несохранённый текст пропадёт гарантированно.</p></details>
+          <details class="ropt"><summary>Вежливо попросить завершиться и подождать</summary><p><b class="v-ok">✓ Верно.</b> Верно. Если программа ещё может ответить, она успеет сохраниться.</p></details>
+          <details class="ropt"><summary>Перезагрузить сервер</summary><p><b class="v-bad">✗ Неверно.</b> Слишком грубо: пострадают все остальные процессы и пользователи.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Анна пытается остановить процесс и видит это. Почему?</p>
+        <div class="term">Operation not permitted</div>
+        <div class="opts">
+          <details class="ropt"><summary>Процесса уже нет</summary><p><b class="v-bad">✗ Неверно.</b> Если бы процесса не было, ошибка была бы другая: No such process.</p></details>
+          <details class="ropt"><summary>Процесс принадлежит другому пользователю</summary><p><b class="v-ok">✓ Верно.</b> Верно. Сигналы можно слать только своим процессам.</p></details>
+        </div>
+        
+      </div>
+    </section>
+    <section class="quiz"><h3>Итоговые вопросы урока</h3>
+      <div class="q" data-q>
+        <p class="qt">Вы трижды открыли один и тот же редактор. Сколько процессов?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Один, программа ведь одна</summary><p><b class="v-bad">✗ Неверно.</b> Программа одна, но процесс — это каждый её запуск.</p></details>
+          <details class="ropt"><summary>Три</summary><p><b class="v-ok">✓ Верно.</b> Да. Три запуска, три процесса с разными номерами, каждый со своей памятью.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Почему вы не можете завершить процесс коллеги?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Процесс работает под его удостоверением, а не под вашим</summary><p><b class="v-ok">✓ Верно.</b> Верно. Сигналы можно слать только своим процессам. Исключение — root.</p></details>
+          <details class="ropt"><summary>Вы не можете узнать его номер</summary><p><b class="v-bad">✗ Неверно.</b> Номер увидеть можно, обычно список процессов виден всем.</p></details>
+          <details class="ropt"><summary>Его программа не принимает сигналы</summary><p><b class="v-bad">✗ Неверно.</b> Сигналы работают одинаково для всех программ, дело в владельце.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Вы закрыли окно терминала, где шла долгая загрузка. Что с ней обычно происходит?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Продолжит работать сама по себе</summary><p><b class="v-bad">✗ Неверно.</b> Без специальных мер не продолжит: ей пришёл сигнал обрыва.</p></details>
+          <details class="ropt"><summary>Завершится вместе с терминалом</summary><p><b class="v-ok">✓ Верно.</b> Да. Терминал был её предком, при закрытии потомки получают сигнал обрыва связи и завершаются. От этого спасает tmux, о нём урок 7.</p></details>
+          <details class="ropt"><summary>Встанет на паузу до следующего входа</summary><p><b class="v-bad">✗ Неверно.</b> Процесс не ставится на паузу, он получает сигнал обрыва.</p></details>
+        </div>
+        
+      </div>
+    </section>
+  </article>
+<p class="totop"><a href="#toc">↑ к оглавлению</a></p>
+
+  <article class="lesson" id="jobs">
+    <header class="lesson-head">
+      <span class="eyebrow">Урок 6 · Фон и передний план</span>
+      <h2>У терминала одна клавиатура</h2>
+      <p class="lead">В одном терминале может работать много программ, но читать с клавиатуры может только одна. Она на переднем плане. Остальные в фоне.</p>
+    </header>
+    <div class="prose">
+      <ul>
+        <li><b>Передний план.</b> Программа владеет клавиатурой. Пока она работает, оболочка ждёт и новых команд не принимает. Сочетание Ctrl+C просит её завершиться.</li>
+        <li><b>Фон.</b> Программа работает, но клавиатуру не трогает. Вы тем временем пользуетесь оболочкой. Её вывод может вперемешку появляться на экране.</li>
+        <li><b>Остановлена.</b> Ctrl+Z не закрывает программу, а замораживает её и возвращает клавиатуру оболочке. Потом её можно разморозить в фоне или вернуть на передний план.</li>
+      </ul>
+      <p>Всё это задачи <b>одной оболочки</b>. Фоновая задача остаётся ребёнком терминала и при его закрытии тоже получает сигнал обрыва.</p>
+    </div>
+    
+    <h3>Примеры из жизни</h3>
+    <div class="examples">
+      <div class="ex"><p class="sit">Вы запустили долгую архивацию, и терминал «завис»: курсор мигает, приглашения нет.</p><p><b>Что происходит.</b> Ничего не зависло. Архивация на переднем плане и держит клавиатуру, оболочка ждёт её окончания. Можно подождать, нажать Ctrl+C, чтобы прекратить, или Ctrl+Z, чтобы заморозить.</p></div>
+      <div class="ex"><p class="sit">После Ctrl+Z терминал пишет:</p><div class="term">^Z
+[1]+  Stopped        tar czf photos.tgz photos/</div><p><b>Как читать.</b> <code>[1]</code> — номер задачи в этом терминале. <code>Stopped</code> — заморожена, не работает. Её можно разморозить в фоне или вернуть вперёд.</p></div>
+      <div class="ex"><p class="sit">Задачу запустили сразу в фоне (знак <code>&amp;</code> в конце команды). Терминал ответил:</p><div class="term">[2] 4188
+anna@server:~$ _</div><p><b>Как читать.</b> Задача номер 2, процесс 4188. Приглашение сразу вернулось: клавиатура снова у оболочки, а задача работает в фоне.</p></div>
+    </div>
+    <section class="quiz">
+      <h3>Проверь себя на примерах</h3>
+      <div class="q" data-q>
+        <p class="qt">Что значит эта строка?</p>
+        <div class="term">[1]+  Stopped        tar czf photos.tgz photos/</div>
+        <div class="opts">
+          <details class="ropt"><summary>Архивация закончилась</summary><p><b class="v-bad">✗ Неверно.</b> Stopped не значит «завершена», её можно продолжить.</p></details>
+          <details class="ropt"><summary>Архивация заморожена</summary><p><b class="v-ok">✓ Верно.</b> Верно. Задача 1 заморожена и ждёт.</p></details>
+          <details class="ropt"><summary>Архивация работает в фоне</summary><p><b class="v-bad">✗ Неверно.</b> В фоне задача пишет Running, а не Stopped.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Вы запустили команду, курсор мигает, приглашение не возвращается уже минуту. Что скорее всего происходит?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Сломался сервер</summary><p><b class="v-bad">✗ Неверно.</b> Обычно всё в порядке, просто занят передний план.</p></details>
+          <details class="ropt"><summary>Программа ещё работает на переднем плане</summary><p><b class="v-ok">✓ Верно.</b> Верно. Программа работает на переднем плане и держит клавиатуру.</p></details>
+          <details class="ropt"><summary>Оболочка ждёт следующую команду</summary><p><b class="v-bad">✗ Неверно.</b> Оболочка ждёт, пока передний план не освободится.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Терминал ответил <code>[2] 4188</code> и сразу вернул приглашение. Где задача?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Работает в фоне</summary><p><b class="v-ok">✓ Верно.</b> Верно. Номер задачи 2, процесс 4188, клавиатура у оболочки.</p></details>
+          <details class="ropt"><summary>На переднем плане</summary><p><b class="v-bad">✗ Неверно.</b> Если бы она была на переднем плане, приглашение не вернулось бы.</p></details>
+          <details class="ropt"><summary>Заморожена</summary><p><b class="v-bad">✗ Неверно.</b> Замороженные задачи помечаются Stopped.</p></details>
+        </div>
+        
+      </div>
+    </section>
+    <section class="quiz"><h3>Итоговые вопросы урока</h3>
+      <div class="q" data-q>
+        <p class="qt">Вы нажали Ctrl+Z на долгой архивации. Что с ней?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Она завершилась</summary><p><b class="v-bad">✗ Неверно.</b> Ctrl+Z не завершает, а замораживает.</p></details>
+          <details class="ropt"><summary>Она заморожена и не продвигается</summary><p><b class="v-ok">✓ Верно.</b> Да. Она стоит на месте и ждёт. Её можно продолжить в фоне или вернуть вперёд.</p></details>
+          <details class="ropt"><summary>Она сама продолжила в фоне</summary><p><b class="v-bad">✗ Неверно.</b> Сама в фон она не уходит, а останавливается. В фоне она продолжит, только если её туда разморозить.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Куда идут нажатые клавиши, если на переднем плане работает программа, а ещё две в фоне?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Только программе на переднем плане</summary><p><b class="v-ok">✓ Верно.</b> Верно. Клавиатура одна и принадлежит переднему плану.</p></details>
+          <details class="ropt"><summary>Всем трём</summary><p><b class="v-bad">✗ Неверно.</b> Фоновые задачи клавиатуру не читают.</p></details>
+          <details class="ropt"><summary>Оболочке</summary><p><b class="v-bad">✗ Неверно.</b> Оболочка ждёт, пока передний план не освободится.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Задача работает в фоне. Вы закрыли терминал. Что будет?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Она спокойно доработает</summary><p><b class="v-bad">✗ Неверно.</b> Фон не делает задачу независимой от терминала.</p></details>
+          <details class="ropt"><summary>Обычно завершится вместе с терминалом</summary><p><b class="v-ok">✓ Верно.</b> Да. Фон и передний план — это порядки внутри одного терминала. Чтобы пережить закрытие, нужен tmux.</p></details>
+        </div>
+        
+      </div>
+    </section>
+  </article>
+<p class="totop"><a href="#toc">↑ к оглавлению</a></p>
+
+  <article class="lesson" id="tmux">
+    <header class="lesson-head">
+      <span class="eyebrow">Урок 7 · tmux</span>
+      <h2>Терминал, который живёт без вас</h2>
+      <p class="lead">tmux переносит ваши терминалы с экрана ноутбука на сервер. Окно на ноутбуке становится просто экраном, через который вы на них смотрите.</p>
+    </header>
+    <div class="prose">
+      <p>Без tmux ваша оболочка привязана к соединению. Оборвалась связь, закрылась крышка ноутбука, и вся работа получает сигнал обрыва. С tmux на сервере работает отдельный процесс, <b>сервер tmux</b>. Это он держит оболочки и программы. Вы подключаетесь к нему как <b>клиент</b>, а когда уходите, просто <b>отключаетесь</b>. Работа идёт дальше.</p>
+      <ul>
+        <li><b>Сессия</b> — рабочее место целиком, со своим именем. Например, «работа» или «бот».</li>
+        <li><b>Окна</b> — вкладки внутри сессии, внизу видны в зелёной строке.</li>
+        <li><b>Панели</b> — части одного окна, разрезанного на куски, чтобы видеть несколько терминалов разом.</li>
+        <li><b>Префикс.</b> Чтобы tmux понял, что клавиши для него, а не для программы, сначала нажимают особое сочетание, по умолчанию Ctrl+B, а потом клавишу действия.</li>
+      </ul>
+    </div>
+    
+    
+    <div class="big-idea"><b>Главное.</b> Окно на ноутбуке больше не хозяин работы. Хозяин — сервер tmux. Поэтому, если работа долгая или связь ненадёжная, её начинают внутри tmux заранее, а не после обрыва.</div>
+    <h3>Примеры из жизни</h3>
+    <div class="examples">
+      <div class="ex"><p class="sit">Внизу экрана появилась зелёная полоса.</p><div class="term">[rabota] 0:bash  1:logi*  2:bot</div><p><b>Как читать.</b> Вы внутри tmux. Сессия называется <code>rabota</code>, в ней три окна. Звёздочка — окно, которое вы сейчас видите, <code>logi</code>.</p></div>
+      <div class="ex"><p class="sit">Утром подключились к серверу и попросили список сессий.</p><div class="term">rabota: 3 windows (created Thu Nov 12 18:40)
+bot: 1 windows (created Mon Nov  9 10:02)</div><p><b>Что происходит.</b> Сессии жили всю ночь без вас. К любой можно подключиться и продолжить с того места.</p></div>
+      <div class="ex"><p class="sit">После перезагрузки сервера:</p><div class="term">no server running on /tmp/tmux-1001/default</div><p><b>Что происходит.</b> Сервер tmux был процессом. Машину перезагрузили, процессов не осталось, сессий тоже. tmux спасает от обрыва связи, а не от выключения.</p></div>
+    </div>
+    <section class="quiz">
+      <h3>Проверь себя на примерах</h3>
+      <div class="q" data-q>
+        <p class="qt">Какое окно вы сейчас видите?</p>
+        <div class="term">[rabota] 0:bash  1:logi*  2:bot</div>
+        <div class="opts">
+          <details class="ropt"><summary>rabota</summary><p><b class="v-bad">✗ Неверно.</b> rabota — это имя сессии, а не окна.</p></details>
+          <details class="ropt"><summary>logi</summary><p><b class="v-ok">✓ Верно.</b> Верно. Звёздочкой помечено текущее окно.</p></details>
+          <details class="ropt"><summary>bot</summary><p><b class="v-bad">✗ Неверно.</b> Посмотрите, у какого окна звёздочка.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Вы видите эту ошибку. Что случилось?</p>
+        <div class="term">no server running on /tmp/tmux-1001/default</div>
+        <div class="opts">
+          <details class="ropt"><summary>Сейчас нет ни одной сессии tmux: сервер tmux не работает</summary><p><b class="v-ok">✓ Верно.</b> Верно. Сервера tmux нет: его не запускали или машину перезагрузили.</p></details>
+          <details class="ropt"><summary>Пропала сеть</summary><p><b class="v-bad">✗ Неверно.</b> Сеть тут ни при чём: вы уже на сервере, раз видите ответ.</p></details>
+          <details class="ropt"><summary>У вас нет прав на tmux</summary><p><b class="v-bad">✗ Неверно.</b> Права тут ни при чём, это сообщение о том, что сервера tmux нет.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Когда нужно заходить в tmux, если впереди долгая работа?</p>
+        <div class="opts">
+          <details class="ropt"><summary>До запуска работы</summary><p><b class="v-ok">✓ Верно.</b> Верно. Задачу, уже запущенную вне tmux, в него не перенести.</p></details>
+          <details class="ropt"><summary>Когда связь оборвалась</summary><p><b class="v-bad">✗ Неверно.</b> После обрыва поздно: задача уже убита.</p></details>
+          <details class="ropt"><summary>Когда работа наполовину сделана</summary><p><b class="v-bad">✗ Неверно.</b> Тоже поздно: если задача запущена вне tmux, её не перенести.</p></details>
+        </div>
+        
+      </div>
+    </section>
+    <section class="quiz"><h3>Итоговые вопросы урока</h3>
+      <div class="q" data-q>
+        <p class="qt">Почему задача внутри tmux переживает обрыв связи?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Её держит сервер tmux на удалённой машине, а не ваше соединение</summary><p><b class="v-ok">✓ Верно.</b> Верно. Её родитель — сервер tmux, а он с вашим соединением не связан.</p></details>
+          <details class="ropt"><summary>tmux хранит её на ноутбуке</summary><p><b class="v-bad">✗ Неверно.</b> Ноутбук в этот момент может быть вообще выключен.</p></details>
+          <details class="ropt"><summary>tmux запрещает задачам завершаться</summary><p><b class="v-bad">✗ Неверно.</b> tmux не трогает сигналы задачи, он просто не даёт им возникнуть.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Сервер, на котором работает tmux, перезагрузили. Что с сессиями?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Сохранились, tmux всё переживает</summary><p><b class="v-bad">✗ Неверно.</b> tmux защищает от обрыва связи, а не от выключения машины.</p></details>
+          <details class="ropt"><summary>Пропали вместе со всеми процессами</summary><p><b class="v-ok">✓ Верно.</b> Да. Сервер tmux — тоже процесс. Выключили машину, процессов не стало.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Чем окна tmux отличаются от панелей?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Окна делят экран на части, панели — это вкладки</summary><p><b class="v-bad">✗ Неверно.</b> Наоборот.</p></details>
+          <details class="ropt"><summary>Окна — это вкладки, панели — куски одного окна</summary><p><b class="v-ok">✓ Верно.</b> Верно. Окно занимает весь экран, переключение между ними как между вкладками. Панели делят одно окно.</p></details>
+          <details class="ropt"><summary>Окна на сервере, панели на ноутбуке</summary><p><b class="v-bad">✗ Неверно.</b> И то и другое живёт внутри одной сессии на сервере.</p></details>
+        </div>
+        
+      </div>
+    </section>
+  </article>
+<p class="totop"><a href="#toc">↑ к оглавлению</a></p>
+
+  <article class="lesson" id="sandbox">
+    <header class="lesson-head">
+      <span class="eyebrow">Урок 8 · Своя песочница</span>
+      <h2>Тренироваться там, где ничего не жалко</h2>
+      <p class="lead">Учиться удалять файлы на рабочем сервере — плохая идея. Нужен свой Linux, который можно сломать и поставить заново за пять минут.</p>
+    </header>
+    <div class="prose">
+      <p>На Windows для этого есть <b>WSL</b> (подсистема Linux для Windows). Это настоящий Linux, обычно Ubuntu, который работает внутри Windows. Windows остаётся как была. Графики в нём почти нет, только терминал, но для учёбы это и нужно: на сервере будет так же.</p>
+      <ul>
+        <li><b>Это отдельный компьютер внутри вашего.</b> Свои пользователи, свои права, свои процессы. Всё, что вы учили в первой части, там работает так же.</li>
+        <li><b>Диск Windows виден изнутри</b> как папка <code>/mnt/c</code>. Так можно достать файл из «Документов». Но тренироваться лучше в домашней папке Linux, а не на диске Windows.</li>
+        <li><b>Сломали — не страшно.</b> Песочницу можно удалить и поставить заново.</li>
+      </ul>
+    </div>
+    
+    <div class="trap"><b>Ловушка, на которой пугаются все.</b> Когда Linux просит пароль, <b>при наборе ничего не появляется</b>: ни букв, ни звёздочек. Так задумано, чтобы никто не подсмотрел даже длину пароля. Просто наберите его и нажмите Enter.</div>
+    <h3>Примеры из жизни</h3>
+    <div class="examples">
+      <div class="ex"><p class="sit">Первый запуск Ubuntu просит придумать имя и пароль.</p><div class="term">Enter new UNIX username: anna
+New password:
+Retype new password:</div><p><b>Что происходит.</b> Вы создаёте пользователя внутри песочницы. Он не связан с вашим входом в Windows и с сервером. Пароль понадобится для <code>sudo</code>, запомните его.</p></div>
+      <div class="ex"><p class="sit">Где лежат файлы Windows изнутри Linux.</p><div class="term">anna@PC:~$ ls /mnt/c/Users
+Public  Anna</div><p><b>Как читать.</b> Диск C: подключён как папка <code>/mnt/c</code>. В Linux нет букв дисков: всё висит на одном дереве папок, об этом следующий урок.</p></div>
+    </div>
+    <section class="quiz">
+      <h3>Проверь себя на примерах</h3>
+      <div class="q" data-q>
+        <p class="qt">Вы набираете пароль, а на экране ничего не появляется. Что делать?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Перезапустить терминал: клавиатура не работает</summary><p><b class="v-bad">✗ Неверно.</b> Клавиатура работает, просто ввод не показывается.</p></details>
+          <details class="ropt"><summary>Спокойно набрать пароль и нажать Enter</summary><p><b class="v-ok">✓ Верно.</b> Верно. Пароль не показывается нарочно, даже звёздочками.</p></details>
+          <details class="ropt"><summary>Набрать пароль в другом окне и вставить</summary><p><b class="v-bad">✗ Неверно.</b> Так пароль не вводят: он попадёт в историю и на экран.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Как изнутри WSL попасть в файлы диска C:?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Написать C:\</summary><p><b class="v-bad">✗ Неверно.</b> Букв дисков в Linux нет.</p></details>
+          <details class="ropt"><summary>Через папку /mnt/c</summary><p><b class="v-ok">✓ Верно.</b> Верно. Диск подключён к дереву папок как /mnt/c.</p></details>
+          <details class="ropt"><summary>Никак, они не видны</summary><p><b class="v-bad">✗ Неверно.</b> Доступ есть, через /mnt/c.</p></details>
+        </div>
+        
+      </div>
+    </section>
+    <section class="quiz"><h3>Итоговые вопросы урока</h3>
+      <div class="q" data-q>
+        <p class="qt">Зачем песочница, если есть рабочий сервер?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Чтобы ошибаться без последствий для настоящей работы</summary><p><b class="v-ok">✓ Верно.</b> Да. Ошибки в песочнице ничего не стоят, а на сервере могут стоить работы коллег.</p></details>
+          <details class="ropt"><summary>В песочнице Linux устроен проще</summary><p><b class="v-bad">✗ Неверно.</b> Устройство то же самое, в этом и смысл.</p></details>
+          <details class="ropt"><summary>В песочнице нет прав и пользователей</summary><p><b class="v-bad">✗ Неверно.</b> Права там тоже работают, вы просто там хозяин.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Пользователь, которого вы создали в WSL, и ваш логин на сервере — это одно и то же?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Да, если имена совпадают</summary><p><b class="v-bad">✗ Неверно.</b> Это разные компьютеры, у каждого свой список пользователей.</p></details>
+          <details class="ropt"><summary>Нет, это разные пользователи на разных системах</summary><p><b class="v-ok">✓ Верно.</b> Верно. У каждой системы свои пользователи и пароли.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">В песочнице вы случайно удалили важные системные файлы. Что теперь?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Сломалась Windows</summary><p><b class="v-bad">✗ Неверно.</b> Windows не затронута, песочница отдельная.</p></details>
+          <details class="ropt"><summary>Удалить песочницу и поставить заново</summary><p><b class="v-ok">✓ Верно.</b> Верно. Для этого песочница и нужна.</p></details>
+          <details class="ropt"><summary>Пострадал рабочий сервер</summary><p><b class="v-bad">✗ Неверно.</b> Песочница никак не связана с сервером.</p></details>
+        </div>
+        
+      </div>
+    </section>
+  </article>
+<p class="totop"><a href="#toc">↑ к оглавлению</a></p>
+
+  <article class="lesson" id="paths">
+    <header class="lesson-head">
+      <span class="eyebrow">Урок 9 · Где я</span>
+      <h2>Одно дерево папок и ваше место в нём</h2>
+      <p class="lead">Половина вопросов «почему не работает» на самом деле про то, что вы стоите не в той папке или указали путь не оттуда.</p>
+    </header>
+    <div class="prose">
+      <ul>
+        <li><b>Одно дерево.</b> Всё начинается с корня <code>/</code>. Дисков C: и D: нет: любой диск подключается куда-то в это дерево как папка.</li>
+        <li><b>Вы всегда где-то стоите.</b> У оболочки (как у любого процесса, урок 5) есть <b>текущая папка</b>. Сразу после входа это ваш дом. Её видно в строке приглашения.</li>
+        <li><b>Абсолютный путь</b> начинается с <code>/</code> и читается от корня: <code>/home/anna/docs/otchet.txt</code>. Работает откуда угодно.</li>
+        <li><b>Относительный путь</b> не начинается с <code>/</code> и читается <b>от текущей папки</b>: <code>docs/otchet.txt</code>. Работает только из правильного места.</li>
+        <li><b>Короткие обозначения.</b> <code>~</code> — ваш дом. <code>.</code> — эта папка. <code>..</code> — папка на уровень выше.</li>
+        <li><b>Регистр важен.</b> <code>Otchet.txt</code> и <code>otchet.txt</code> — два разных файла.</li>
+        <li><b>Скрытые файлы</b> начинаются с точки: <code>.bashrc</code>, <code>.env</code>. Обычный список их не показывает. В них часто лежат настройки.</li>
+      </ul>
+    </div>
+    
+    <h3>Примеры из жизни</h3>
+    <div class="examples">
+      <div class="ex"><div class="term">anna@server:~/bot$ python bot.py
+anna@server:~$ python bot.py
+python: can't open file 'bot.py': No such file or directory</div><p><b>Что происходит.</b> Первая команда сработала, потому что вы стояли в <code>~/bot</code>. Вторая запущена из дома, а там файла <code>bot.py</code> нет. Путь <code>bot.py</code> относительный и читается от текущей папки.</p></div>
+      <div class="ex"><div class="term">anna@server:/var/log$ pwd
+/var/log</div><p><b>Как читать.</b> Команда <code>pwd</code> печатает абсолютный путь текущей папки. В приглашении он виден тоже, но сокращённо: <code>~</code> вместо <code>/home/anna</code>.</p></div>
+    </div>
+    <section class="quiz">
+      <h3>Проверь себя на примерах</h3>
+      <div class="q" data-q>
+        <p class="qt">Вы в <code>/home/anna/docs</code>. Куда ведёт путь <code>../bot/bot.py</code>?</p>
+        <div class="opts">
+          <details class="ropt"><summary>/home/anna/docs/bot/bot.py</summary><p><b class="v-bad">✗ Неверно.</b> .. поднимает на уровень выше, а не вглубь.</p></details>
+          <details class="ropt"><summary>/home/anna/bot/bot.py</summary><p><b class="v-ok">✓ Верно.</b> Верно. .. — это /home/anna, оттуда в bot.</p></details>
+          <details class="ropt"><summary>/bot/bot.py</summary><p><b class="v-bad">✗ Неверно.</b> Путь не начинается с /, значит он относительный.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Какой путь сработает из любой папки?</p>
+        <div class="opts">
+          <details class="ropt"><summary>docs/otchet.txt</summary><p><b class="v-bad">✗ Неверно.</b> Это относительный путь, он зависит от того, где вы стоите.</p></details>
+          <details class="ropt"><summary>/home/anna/docs/otchet.txt</summary><p><b class="v-ok">✓ Верно.</b> Верно. Он абсолютный, начинается с /.</p></details>
+          <details class="ropt"><summary>../docs/otchet.txt</summary><p><b class="v-bad">✗ Неверно.</b> Тоже относительный: от текущей папки на уровень выше.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Файл точно есть, вы видели его вчера, а сегодня «No such file or directory». Что проверить первым?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Где я сейчас и правильно ли написано имя, включая большие и маленькие буквы</summary><p><b class="v-ok">✓ Верно.</b> Верно. Чаще всего вы просто в другой папке или ошиблись в регистре букв.</p></details>
+          <details class="ropt"><summary>Права на файл</summary><p><b class="v-bad">✗ Неверно.</b> Для отказа в правах ошибка была бы Permission denied.</p></details>
+          <details class="ropt"><summary>Не сломался ли диск</summary><p><b class="v-bad">✗ Неверно.</b> Такое возможно, но редко. Сначала проверьте простое.</p></details>
+        </div>
+        
+      </div>
+    </section>
+    <section class="quiz"><h3>Итоговые вопросы урока</h3>
+      <div class="q" data-q>
+        <p class="qt">Что означает <code>~</code>?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Корень системы</summary><p><b class="v-bad">✗ Неверно.</b> Корень — это /.</p></details>
+          <details class="ropt"><summary>Домашнюю папку текущего пользователя</summary><p><b class="v-ok">✓ Верно.</b> Верно. Для Анны ~ это /home/anna.</p></details>
+          <details class="ropt"><summary>Текущую папку</summary><p><b class="v-bad">✗ Неверно.</b> Текущая папка — это точка.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Где в Linux второй диск, если C: и D: нет?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Подключён как папка где-то в общем дереве</summary><p><b class="v-ok">✓ Верно.</b> Верно. Любой диск подключается в одно дерево, например в /mnt/data.</p></details>
+          <details class="ropt"><summary>У него своё отдельное дерево</summary><p><b class="v-bad">✗ Неверно.</b> Отдельного дерева нет, оно всегда одно.</p></details>
+          <details class="ropt"><summary>Linux видит только один диск</summary><p><b class="v-bad">✗ Неверно.</b> Linux прекрасно работает с несколькими дисками.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Почему в обычном списке папки не видно файла <code>.env</code>?</p>
+        <div class="opts">
+          <details class="ropt"><summary>У вас нет на него прав</summary><p><b class="v-bad">✗ Неверно.</b> Права тут ни при чём, дело в имени.</p></details>
+          <details class="ropt"><summary>Имя начинается с точки, такие файлы скрыты</summary><p><b class="v-ok">✓ Верно.</b> Верно. Файлы с точкой в начале скрытые, их показывают только по просьбе.</p></details>
+          <details class="ropt"><summary>Он удалён</summary><p><b class="v-bad">✗ Неверно.</b> Файл существует, просто скрыт.</p></details>
+        </div>
+        
+      </div>
+    </section>
+  </article>
+<p class="totop"><a href="#toc">↑ к оглавлению</a></p>
+
+  <article class="lesson" id="cmd">
+    <header class="lesson-head">
+      <span class="eyebrow">Урок 10 · Команда</span>
+      <h2>Из чего состоит команда</h2>
+      <p class="lead">Любая команда — это фраза из слов, разделённых пробелами. Первое слово — что делать, остальные — как и над чем.</p>
+    </header>
+    <div class="prose">
+      <ul>
+        <li><b>Команда</b> — первое слово, имя программы: <code>ls</code>, <code>cp</code>, <code>grep</code>. Оболочка находит программу и запускает её как процесс.</li>
+        <li><b>Флаги</b> (опции) начинаются с минуса и меняют поведение: <code>-l</code> подробно, <code>-a</code> со скрытыми. Короткие можно склеить: <code>-la</code>. Длинные пишутся с двумя минусами: <code>--all</code>.</li>
+        <li><b>Аргументы</b> — над чем работать: файлы, папки, текст.</li>
+        <li><b>Пробел — разделитель.</b> Поэтому имя с пробелом нужно взять в кавычки: <code>"мой отчёт.txt"</code>, иначе это будут два слова.</li>
+        <li><b>Тишина — хороший знак.</b> Если команда ничего не написала и вернула приглашение, обычно это значит «сделано». Linux не хвалит, он сообщает только о проблемах.</li>
+      </ul>
+      <p><b>Помощники, которые экономят нервы:</b> клавиша <b>Tab</b> дописывает имена файлов и команд (меньше опечаток), <b>стрелка вверх</b> возвращает прошлые команды, <b>Ctrl+C</b> отменяет то, что сейчас выполняется или набрано. Справка: <code>команда --help</code> коротко или <code>man команда</code> подробно (выход из man — клавиша <code>q</code>).</p>
+    </div>
+    
+    <h3>Примеры из жизни</h3>
+    <div class="examples">
+      <div class="ex"><div class="term">anna@server:~$ cp otchet.txt мой отчёт.txt
+cp: target 'отчёт.txt': Not a directory</div><p><b>Что происходит.</b> Без кавычек получилось три аргумента: <code>otchet.txt</code>, <code>мой</code>, <code>отчёт.txt</code>. Если аргументов больше двух, <code>cp</code> считает последний папкой, куда копировать остальные. А это не папка.</p></div>
+      <div class="ex"><div class="term">anna@server:~$ mkdir test
+anna@server:~$ _</div><p><b>Что происходит.</b> Папка создана. Команда ничего не сказала, и это нормально: молчание значит успех.</p></div>
+      <div class="ex"><div class="term">anna@server:~$ Ls
+Ls: command not found</div><p><b>Что происходит.</b> Регистр важен и в командах. Программы <code>Ls</code> нет, есть <code>ls</code>.</p></div>
+    </div>
+    <section class="quiz">
+      <h3>Проверь себя на примерах</h3>
+      <div class="q" data-q>
+        <p class="qt">Сколько аргументов в этой команде (не считая самой команды и флагов)?</p>
+        <div class="term">cp -i "старый отчёт.txt" backup/</div>
+        <div class="opts">
+          <details class="ropt"><summary>Три</summary><p><b class="v-bad">✗ Неверно.</b> Кавычки склеивают «старый отчёт.txt» в одно слово.</p></details>
+          <details class="ropt"><summary>Два</summary><p><b class="v-ok">✓ Верно.</b> Верно: файл в кавычках и папка backup/. -i — это флаг.</p></details>
+          <details class="ropt"><summary>Четыре</summary><p><b class="v-bad">✗ Неверно.</b> -i — флаг, а не аргумент. Аргументов два.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Вы создали папку, а терминал ничего не ответил. Что это значит?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Всё получилось</summary><p><b class="v-ok">✓ Верно.</b> Верно. Молчание обычно значит успех.</p></details>
+          <details class="ropt"><summary>Ошибка, просто без текста</summary><p><b class="v-bad">✗ Неверно.</b> При ошибке была бы строка с причиной.</p></details>
+          <details class="ropt"><summary>Команда ещё выполняется</summary><p><b class="v-bad">✗ Неверно.</b> Приглашение вернулось, значит команда закончилась.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Что делает клавиша Tab при наборе пути?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Ставит отступ</summary><p><b class="v-bad">✗ Неверно.</b> Отступов в командной строке не бывает.</p></details>
+          <details class="ropt"><summary>Дописывает имя файла или папки, если оно однозначно</summary><p><b class="v-ok">✓ Верно.</b> Верно. Это экономит время и спасает от опечаток. Не дописывает — значит такого имени нет или вариантов несколько.</p></details>
+          <details class="ropt"><summary>Запускает команду</summary><p><b class="v-bad">✗ Неверно.</b> Запускает Enter, а не Tab.</p></details>
+        </div>
+        
+      </div>
+    </section>
+    <section class="quiz"><h3>Итоговые вопросы урока</h3>
+      <div class="q" data-q>
+        <p class="qt">Что такое <code>-la</code> в <code>ls -la</code>?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Аргумент, имя папки</summary><p><b class="v-bad">✗ Неверно.</b> Аргументы — это над чем работать, а -la меняет поведение.</p></details>
+          <details class="ropt"><summary>Два склеенных флага</summary><p><b class="v-ok">✓ Верно.</b> Верно: -l (подробно) и -a (со скрытыми) склеены вместе.</p></details>
+          <details class="ropt"><summary>Часть имени команды</summary><p><b class="v-bad">✗ Неверно.</b> Команда здесь ls, первое слово.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Как узнать, какие флаги есть у незнакомой команды?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Набрать команду с --help или открыть man</summary><p><b class="v-ok">✓ Верно.</b> Верно. --help коротко, man подробно. Из man выходят клавишей q.</p></details>
+          <details class="ropt"><summary>Перебрать все буквы по очереди</summary><p><b class="v-bad">✗ Неверно.</b> Это опасный способ, пробовать флаги вслепую не нужно.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Как остановить команду, которая выполняется слишком долго или делает не то?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Ctrl+Z</summary><p><b class="v-bad">✗ Неверно.</b> Это заморозка, урок 6. Процесс останется висеть.</p></details>
+          <details class="ropt"><summary>Ctrl+C</summary><p><b class="v-ok">✓ Верно.</b> Верно. Ctrl+C вежливо просит программу на переднем плане завершиться.</p></details>
+          <details class="ropt"><summary>Закрыть окно</summary><p><b class="v-bad">✗ Неверно.</b> Закроется весь терминал со всеми задачами.</p></details>
+        </div>
+        
+      </div>
+    </section>
+  </article>
+<p class="totop"><a href="#toc">↑ к оглавлению</a></p>
+
+  <article class="lesson" id="files">
+    <header class="lesson-head">
+      <span class="eyebrow">Урок 11 · Файлы</span>
+      <h2>Копировать, переносить, удалять: без корзины и без вопросов</h2>
+      <p class="lead">В терминале нет корзины и нет окна «Вы уверены?». Команда делает ровно то, что написано, сразу и навсегда.</p>
+    </header>
+    <div class="prose">
+      <ul>
+        <li><b>Копирование</b> (<code>cp</code>) создаёт второй, независимый файл. Правки в копии не трогают оригинал.</li>
+        <li><b>Перенос и переименование</b> (<code>mv</code>) — одно и то же действие: меняется имя или место записи в папке. Сам файл не копируется, поэтому перенос внутри диска мгновенный даже для огромных файлов.</li>
+        <li><b>Удаление</b> (<code>rm</code>) убирает имя из папки. Корзины нет, отменить нельзя.</li>
+        <li><b>Затирание без вопросов.</b> Если на месте назначения уже есть файл с тем же именем, <code>cp</code> и <code>mv</code> молча его заменят. Флаг <code>-i</code> заставляет спрашивать.</li>
+        <li><b>Папки</b> копируются и удаляются только с флагом <code>-r</code> (вместе со всем содержимым). <code>rm -rf</code> удаляет всё внутри без единого вопроса. Это самая опасная пара букв в Linux.</li>
+        <li><b>Шаблоны.</b> Звёздочка <code>*</code> означает «любые символы». <code>*.txt</code> — все файлы на .txt. Шаблон раскрывает <b>оболочка</b> до запуска команды: <code>rm</code> получает уже готовый список имён.</li>
+      </ul>
+    </div>
+    
+    <h3>Примеры из жизни</h3>
+    <div class="examples">
+      <div class="ex"><div class="term">anna@server:~/docs$ rm * .txt
+rm: cannot remove '.txt': No such file or directory</div><p><b>Что случилось.</b> Лишний пробел. Получилось два аргумента: <code>*</code> (все файлы в папке) и <code>.txt</code>. Все файлы удалены, а ошибка только про второй. Это одна из самых частых катастроф.</p></div>
+      <div class="ex"><div class="term">anna@server:~/docs$ mv -i plan.txt otchet.txt
+mv: overwrite 'otchet.txt'? n</div><p><b>Как читать.</b> С флагом <code>-i</code> команда спросила, заменять ли существующий файл. Ответ <code>n</code> — нет, ничего не тронуто.</p></div>
+      <div class="ex"><div class="term">anna@server:~$ rm old
+rm: cannot remove 'old': Is a directory</div><p><b>Что происходит.</b> <code>old</code> — папка, а без <code>-r</code> папки не удаляются. Это защита, а не поломка. Прежде чем добавлять <code>-r</code>, посмотрите, что внутри.</p></div>
+    </div>
+    <section class="quiz">
+      <h3>Проверь себя на примерах</h3>
+      <div class="q" data-q>
+        <p class="qt">В папке есть <code>otchet.txt</code>. Вы выполнили <code>mv plan.txt otchet.txt</code>. Что стало со старым отчётом?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Команда спросила разрешения</summary><p><b class="v-bad">✗ Неверно.</b> Без -i команда не спрашивает.</p></details>
+          <details class="ropt"><summary>Он молча затёрт, на его месте теперь план</summary><p><b class="v-ok">✓ Верно.</b> Верно. Старый отчёт заменён планом, восстановить нельзя.</p></details>
+          <details class="ropt"><summary>Он переименован в otchet.txt.1</summary><p><b class="v-bad">✗ Неверно.</b> Автоматических копий нет.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Какие файлы захватит шаблон <code>otchet*</code>?</p>
+        <div class="opts">
+          <details class="ropt"><summary>otchet.txt и otchet-old.txt</summary><p><b class="v-ok">✓ Верно.</b> Верно. Всё, что начинается на otchet, с любым продолжением.</p></details>
+          <details class="ropt"><summary>Только otchet.txt</summary><p><b class="v-bad">✗ Неверно.</b> Звёздочка — любое продолжение, не обязательно .txt.</p></details>
+          <details class="ropt"><summary>Все файлы в папке</summary><p><b class="v-bad">✗ Неверно.</b> Шаблон требует начало otchet.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Чем опасна команда <code>rm * .txt</code> с пробелом?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Ничем, пробел игнорируется</summary><p><b class="v-bad">✗ Неверно.</b> Пробел делит фразу на слова, так что это два аргумента.</p></details>
+          <details class="ropt"><summary>Удалит вообще все файлы в папке</summary><p><b class="v-ok">✓ Верно.</b> Верно. Отдельная * — это все файлы.</p></details>
+          <details class="ropt"><summary>Не удалит ничего</summary><p><b class="v-bad">✗ Неверно.</b> Скорее наоборот: удалит больше.</p></details>
+        </div>
+        
+      </div>
+    </section>
+    <section class="quiz"><h3>Итоговые вопросы урока</h3>
+      <div class="q" data-q>
+        <p class="qt">Вы удалили файл через <code>rm</code>. Где его искать?</p>
+        <div class="opts">
+          <details class="ropt"><summary>В корзине</summary><p><b class="v-bad">✗ Неверно.</b> Корзины в терминале нет.</p></details>
+          <details class="ropt"><summary>Нигде: удаление необратимо, поможет только резервная копия</summary><p><b class="v-ok">✓ Верно.</b> Верно. Поэтому важны резервные копии и проверка перед удалением.</p></details>
+          <details class="ropt"><summary>В /tmp</summary><p><b class="v-bad">✗ Неверно.</b> В /tmp удалённое не складывается.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Почему перенос огромного файла внутри одного диска происходит мгновенно?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Меняется только запись в папке, сами данные не двигаются</summary><p><b class="v-ok">✓ Верно.</b> Верно. Это правка списка папки, урок 4. Поэтому и нужны права на запись в папку.</p></details>
+          <details class="ropt"><summary>Файл сжимается</summary><p><b class="v-bad">✗ Неверно.</b> Сжатия при переносе нет.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Кто раскрывает звёздочку <code>*</code> в список файлов?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Команда rm</summary><p><b class="v-bad">✗ Неверно.</b> rm получает уже готовый список.</p></details>
+          <details class="ropt"><summary>Оболочка, до запуска команды</summary><p><b class="v-ok">✓ Верно.</b> Верно. Оболочка подставляет имена до запуска, поэтому шаблоны работают одинаково для всех команд.</p></details>
+          <details class="ropt"><summary>Ядро</summary><p><b class="v-bad">✗ Неверно.</b> Ядро о шаблонах ничего не знает.</p></details>
+        </div>
+        
+      </div>
+    </section>
+  </article>
+<p class="totop"><a href="#toc">↑ к оглавлению</a></p>
+
+  <article class="lesson" id="edit">
+    <header class="lesson-head">
+      <span class="eyebrow">Урок 12 · Читать и править</span>
+      <h2>Посмотреть файл, поправить и выйти из редактора</h2>
+      <p class="lead">Настройки в Linux — это обычные текстовые файлы. Поэтому умение их читать и править важнее любой графической панели.</p>
+    </header>
+    <div class="prose">
+      <p><b>Смотреть, ничего не меняя:</b></p>
+      <ul>
+        <li><code>cat</code> вываливает файл целиком. Хорошо для коротких.</li>
+        <li><code>less</code> показывает постранично. Листать пробелом, искать через <code>/слово</code>, выход — <code>q</code>.</li>
+        <li><code>head</code> и <code>tail</code> показывают начало и конец. <code>tail -f</code> следит за файлом и показывает новые строки по мере появления. Так смотрят живые логи. Выход — Ctrl+C.</li>
+      </ul>
+      <p><b>Править:</b></p>
+      <ul>
+        <li><b>nano</b> — простой редактор. Подсказки внизу экрана, значок <code>^</code> значит Ctrl. Ctrl+O — сохранить, Ctrl+X — выйти.</li>
+        <li><b>vim</b> — мощный и непривычный. У него <b>режимы</b>: в обычном режиме клавиши — это команды, а не буквы. Печатать можно только в режиме вставки (клавиша <code>i</code>). Чтобы выйти: <code>Esc</code>, затем <code>:q!</code> и Enter (без сохранения) или <code>:wq</code> и Enter (с сохранением).</li>
+      </ul>
+    </div>
+    <div class="big-idea"><b>Два правила для настроек.</b> Первое: перед правкой сделайте копию (<code>cp nginx.conf nginx.conf.bak</code>), тогда всегда можно откатиться. Второе: служба читает настройки обычно <b>при запуске</b>. Сохранили файл — служба этого не заметит, пока её не перезапустят или не попросят перечитать.</div>
+    
+    <h3>Примеры из жизни</h3>
+    <div class="examples">
+      <div class="ex"><div class="term">E37: No write since last change (add ! to override)</div><p><b>Что происходит.</b> Вы пытаетесь выйти из vim через <code>:q</code>, а в файле есть несохранённые правки. vim не даёт их потерять. <code>:wq</code> — сохранить и выйти, <code>:q!</code> — выйти и выбросить правки.</p></div>
+      <div class="ex"><div class="term">  GNU nano 7.2          config.ini
+^G Help  ^O Write Out  ^W Where Is  ^X Exit</div><p><b>Как читать.</b> Нижняя строка nano — шпаргалка. <code>^O</code> значит Ctrl+O (сохранить), <code>^X</code> значит Ctrl+X (выйти).</p></div>
+      <div class="ex"><div class="term">anna@server:~$ tail -f /var/log/bot.log
+12:01 бот запущен
+12:02 получено сообщение
+_</div><p><b>Что происходит.</b> Терминал не завис, он ждёт новые строки лога и показывает их сразу. Выход — Ctrl+C.</p></div>
+    </div>
+    <section class="quiz">
+      <h3>Проверь себя на примерах</h3>
+      <div class="q" data-q>
+        <p class="qt">Вы в vim, нажимаете буквы, а текст не печатается и происходит что-то странное. Почему?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Вы в обычном режиме, где буквы — это команды</summary><p><b class="v-ok">✓ Верно.</b> Верно. В обычном режиме клавиши — команды. Нажмите i для вставки или Esc, чтобы вернуться в обычный режим.</p></details>
+          <details class="ropt"><summary>Файл защищён от записи</summary><p><b class="v-bad">✗ Неверно.</b> Права тут ни при чём, дело в режиме.</p></details>
+          <details class="ropt"><summary>Сломалась клавиатура</summary><p><b class="v-bad">✗ Неверно.</b> Клавиатура работает, vim просто понимает нажатия как команды.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Как выйти из vim, выбросив все правки?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Ctrl+X</summary><p><b class="v-bad">✗ Неверно.</b> Ctrl+X — это выход из nano.</p></details>
+          <details class="ropt"><summary>Esc, потом :q! и Enter</summary><p><b class="v-ok">✓ Верно.</b> Верно. Esc возвращает в обычный режим, :q! выходит без сохранения.</p></details>
+          <details class="ropt"><summary>Клавиша q</summary><p><b class="v-bad">✗ Неверно.</b> Выход из less и man, не из vim.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Вы запустили <code>tail -f</code> на логе, и терминал больше ничего не принимает. Что делать?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Закрыть окно</summary><p><b class="v-bad">✗ Неверно.</b> Терминал не сломан, команда просто следит за файлом.</p></details>
+          <details class="ropt"><summary>Ctrl+C, чтобы прекратить слежение</summary><p><b class="v-ok">✓ Верно.</b> Верно. tail -f работает, пока его не остановят.</p></details>
+          <details class="ropt"><summary>Нажать q</summary><p><b class="v-bad">✗ Неверно.</b> q выходит из less, а tail -f остановится только от Ctrl+C.</p></details>
+        </div>
+        
+      </div>
+    </section>
+    <section class="quiz"><h3>Итоговые вопросы урока</h3>
+      <div class="q" data-q>
+        <p class="qt">Вы поправили и сохранили настройки бота, а бот ведёт себя по-старому. Почему?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Бот прочитал настройки при запуске, его нужно перезапустить</summary><p><b class="v-ok">✓ Верно.</b> Верно. Большинство служб читают настройки только при запуске.</p></details>
+          <details class="ropt"><summary>Правка не сохранилась</summary><p><b class="v-bad">✗ Неверно.</b> Если файл сохранён, правки на диске. Дело в том, когда бот их читает.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Что сделать перед правкой важного файла настроек?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Поменять ему права на 777</summary><p><b class="v-bad">✗ Неверно.</b> Права здесь не помогут откатиться.</p></details>
+          <details class="ropt"><summary>Сделать копию, например nginx.conf.bak</summary><p><b class="v-ok">✓ Верно.</b> Верно. Тогда ошибку всегда можно откатить.</p></details>
+          <details class="ropt"><summary>Перезагрузить сервер</summary><p><b class="v-bad">✗ Неверно.</b> Перезагрузка ничего не защищает.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Чем удобен <code>less</code> для большого лога, а не <code>cat</code>?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Показывает постранично, в нём можно искать и листать</summary><p><b class="v-ok">✓ Верно.</b> Верно. cat вывалит всё разом, и начало улетит за экран.</p></details>
+          <details class="ropt"><summary>less может править файл</summary><p><b class="v-bad">✗ Неверно.</b> less тоже только читает, ничего не правит.</p></details>
+        </div>
+        
+      </div>
+    </section>
+  </article>
+<p class="totop"><a href="#toc">↑ к оглавлению</a></p>
+
+  <article class="lesson" id="errors">
+    <header class="lesson-head">
+      <span class="eyebrow">Урок 13 · Ошибки</span>
+      <h2>Ошибка — это подсказка, а не приговор</h2>
+      <p class="lead">Сообщения об ошибках в Linux короткие и почти всегда точные. Нужно только знать, что каждое из них проверить.</p>
+    </header>
+    <div class="prose">
+      <p>Ошибка обычно построена так: <code>программа: что: причина</code>. Например <code>cp: cannot stat 'otchet.txt': No such file or directory</code>: программа cp, файл otchet.txt, причина — файла нет. Читайте её целиком и до конца, причина обычно в самом конце. Если ошибок много, важна <b>первая</b>: остальные часто из неё следуют.</p>
+    </div>
+    
+    <h3>Примеры из жизни</h3>
+    <div class="examples">
+      <div class="ex"><div class="term">anna@server:~$ nano /etc/hosts
+[ Error writing /etc/hosts: Permission denied ]</div><p><b>Что происходит.</b> Файл системный, принадлежит root. Читать вам можно, писать нет. Это нормально: системные файлы правят через <code>sudo</code>, урок 14.</p></div>
+      <div class="ex"><div class="term">Error: listen EADDRINUSE: address already in use :::3000</div><p><b>Что происходит.</b> Порт 3000 уже занят другим процессом, часто вашей же прошлой копией программы, которая не завершилась. Сначала найдите, кто его держит, и только потом решайте, что делать.</p></div>
+    </div>
+    <section class="quiz">
+      <h3>Проверь себя на примерах</h3>
+      <div class="q" data-q>
+        <p class="qt">О чём эта ошибка?</p>
+        <div class="term">bash: pyhton: command not found</div>
+        <div class="opts">
+          <details class="ropt"><summary>Нет программы с таким именем: здесь опечатка</summary><p><b class="v-ok">✓ Верно.</b> Верно. Опечатка: pyhton вместо python. Если без опечатки та же ошибка, значит программа не установлена.</p></details>
+          <details class="ropt"><summary>Нет прав на Python</summary><p><b class="v-bad">✗ Неверно.</b> Для прав была бы Permission denied.</p></details>
+          <details class="ropt"><summary>Нет файла</summary><p><b class="v-bad">✗ Неверно.</b> Про файл была бы No such file or directory.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Программа не запускается: «address already in use». Что вероятнее всего?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Нет интернета</summary><p><b class="v-bad">✗ Неверно.</b> Сеть работает, иначе ошибка была бы другой.</p></details>
+          <details class="ropt"><summary>Порт уже занят другим процессом, например старой копией этой же программы</summary><p><b class="v-ok">✓ Верно.</b> Верно. Порт может держать только один процесс.</p></details>
+          <details class="ropt"><summary>Не хватает прав на программу</summary><p><b class="v-bad">✗ Неверно.</b> Это не про права.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">На экране 30 строк ошибок. С чего начать?</p>
+        <div class="opts">
+          <details class="ropt"><summary>С последней строки</summary><p><b class="v-bad">✗ Неверно.</b> Последние часто лишь следствие первой.</p></details>
+          <details class="ropt"><summary>С первой ошибки</summary><p><b class="v-ok">✓ Верно.</b> Верно. Остальные часто сыплются из-за неё.</p></details>
+          <details class="ropt"><summary>Не читать, а сразу перезапустить</summary><p><b class="v-bad">✗ Неверно.</b> Ошибки нужно читать, они подсказывают причину.</p></details>
+        </div>
+        
+      </div>
+    </section>
+    <section class="quiz"><h3>Итоговые вопросы урока</h3>
+      <div class="q" data-q>
+        <p class="qt">Permission denied. Какой первый вопрос себе задать?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Кто я сейчас и кому принадлежит файл, какие на нём права</summary><p><b class="v-ok">✓ Верно.</b> Верно. Это урок 4: кто я и что разрешено моей категории.</p></details>
+          <details class="ropt"><summary>Существует ли файл</summary><p><b class="v-bad">✗ Неверно.</b> Файл существует, иначе ошибка была бы No such file.</p></details>
+          <details class="ropt"><summary>Как побыстрее повторить через sudo</summary><p><b class="v-bad">✗ Неверно.</b> Сначала понять причину. sudo без понимания — путь к поломкам.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Что значит «No space left on device»?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Закончилась оперативная память</summary><p><b class="v-bad">✗ Неверно.</b> Память и диск — разные вещи.</p></details>
+          <details class="ropt"><summary>Закончилось место на диске</summary><p><b class="v-ok">✓ Верно.</b> Верно. Частая причина — разросшиеся логи.</p></details>
+          <details class="ropt"><summary>Диск отключён</summary><p><b class="v-bad">✗ Неверно.</b> Устройство на месте, на нём нет места.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Где в сообщении <code>cp: cannot stat 'a.txt': No such file or directory</code> причина?</p>
+        <div class="opts">
+          <details class="ropt"><summary>cp</summary><p><b class="v-bad">✗ Неверно.</b> cp — это кто жалуется.</p></details>
+          <details class="ropt"><summary>'a.txt'</summary><p><b class="v-bad">✗ Неверно.</b> 'a.txt' — это о чём речь.</p></details>
+          <details class="ropt"><summary>No such file or directory</summary><p><b class="v-ok">✓ Верно.</b> Верно. Схема: программа, объект, причина.</p></details>
+        </div>
+        
+      </div>
+    </section>
+  </article>
+<p class="totop"><a href="#toc">↑ к оглавлению</a></p>
+
+  <article class="lesson" id="sudo">
+    <header class="lesson-head">
+      <span class="eyebrow">Урок 14 · sudo и SSH</span>
+      <h2>На минуту стать root и подключиться издалека</h2>
+      <p class="lead">Две вещи, без которых работа на сервере не обходится: как сделать одно действие с правами root и что происходит, когда вы подключаетесь к серверу.</p>
+    </header>
+    <div class="prose">
+      <h3>sudo</h3>
+      <ul>
+        <li><code>sudo команда</code> выполняет <b>одну</b> команду от имени root. Ядро видит процесс root, и права проверяются как для root.</li>
+        <li>sudo спрашивает <b>ваш</b> пароль, а не пароль root. Так система проверяет, что за клавиатурой вы. Несколько минут после этого пароль не спрашивается повторно.</li>
+        <li>Пользоваться sudo можно, только если админ вас разрешил (обычно это членство в группе <code>sudo</code> или <code>wheel</code>). Каждое использование записывается в журнал.</li>
+        <li><b>Ловушка:</b> файл, созданный через sudo, принадлежит root. Потом уже без sudo вы получите на нём Permission denied.</li>
+      </ul>
+      <h3>SSH</h3>
+      <ul>
+        <li><code>ssh anna@server</code> открывает защищённое соединение и запускает на сервере оболочку под пользователем <code>anna</code> <b>сервера</b>. Это не ваш пользователь Windows.</li>
+        <li><b>Вход по ключу.</b> Ключ — пара файлов. Закрытая часть хранится только у вас, как ключ от квартиры. Открытая лежит на сервере, как замок. Закрытым ключом не делятся никогда.</li>
+        <li>При первом подключении спросят, доверяете ли вы серверу, и покажут его отпечаток. Так защищаются от подмены. Если позже ssh пишет, что отпечаток <b>изменился</b>, остановитесь и спросите админа.</li>
+        <li>Сеанс SSH — это дерево процессов на сервере. Оборвалась связь — дерево получает сигнал обрыва. Поэтому долгую работу запускают в tmux.</li>
+      </ul>
+    </div>
+    
+    
+    <h3>Примеры из жизни</h3>
+    <div class="examples">
+      <div class="ex"><div class="term">oleg is not in the sudoers file.  This incident will be reported.</div><p><b>Что происходит.</b> Олегу sudo не разрешён. Попытка записана в журнал. Это не страшно, но значит, что действие нужно просить сделать админа.</p></div>
+      <div class="ex"><div class="term">The authenticity of host 'server (203.0.113.5)' can't be established.
+ED25519 key fingerprint is SHA256:abc...xyz.
+Are you sure you want to continue connecting (yes/no)?</div><p><b>Что происходит.</b> Первое подключение к этому серверу. Ваш компьютер ещё не знает его отпечаток. Если сервер ваш и адрес верный, отвечают <code>yes</code>, и отпечаток запоминается.</p></div>
+      <div class="ex"><div class="term">WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!</div><p><b>Что происходит.</b> Сервер предъявил не тот отпечаток, что раньше. Может быть, его переустановили, а может быть, кто-то подменяет соединение. Не продолжайте, пока админ не подтвердит.</p></div>
+    </div>
+    <section class="quiz">
+      <h3>Проверь себя на примерах</h3>
+      <div class="q" data-q>
+        <p class="qt">sudo спрашивает пароль. Чей пароль вводить?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Пароль root</summary><p><b class="v-bad">✗ Неверно.</b> Пароль root обычным пользователям не дают.</p></details>
+          <details class="ropt"><summary>Свой собственный</summary><p><b class="v-ok">✓ Верно.</b> Верно. sudo проверяет, что вы — это вы.</p></details>
+          <details class="ropt"><summary>Пароль от Windows</summary><p><b class="v-bad">✗ Неверно.</b> Пароль Windows к серверу отношения не имеет.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Вы создали файл командой <code>sudo nano ~/zametka.txt</code>, а теперь без sudo не можете его изменить. Почему?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Файл создал root, и владелец теперь root</summary><p><b class="v-ok">✓ Верно.</b> Верно. Его создал процесс root. Не используйте sudo для своих файлов.</p></details>
+          <details class="ropt"><summary>Файл повреждён</summary><p><b class="v-bad">✗ Неверно.</b> Файл не сломан, у него просто другой владелец.</p></details>
+          <details class="ropt"><summary>sudo ещё не закончился</summary><p><b class="v-bad">✗ Неверно.</b> Время ожидания тут ни при чём, дело во владельце.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">ssh пишет: REMOTE HOST IDENTIFICATION HAS CHANGED. Что делать?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Ответить yes и продолжить</summary><p><b class="v-bad">✗ Неверно.</b> Это может быть подмена сервера. Нельзя отмахиваться.</p></details>
+          <details class="ropt"><summary>Остановиться и спросить админа</summary><p><b class="v-ok">✓ Верно.</b> Верно. Сначала выяснить, почему изменился отпечаток.</p></details>
+        </div>
+        
+      </div>
+    </section>
+    <section class="quiz"><h3>Итоговые вопросы урока</h3>
+      <div class="q" data-q>
+        <p class="qt">Чем <code>sudo команда</code> лучше, чем войти под root и работать?</p>
+        <div class="opts">
+          <details class="ropt"><summary>root действует только для одной команды, и всё записывается в журнал</summary><p><b class="v-ok">✓ Верно.</b> Верно. Опасная власть включается на одну команду, а не на весь день.</p></details>
+          <details class="ropt"><summary>sudo даёт больше прав, чем root</summary><p><b class="v-bad">✗ Неверно.</b> Права root одинаковые.</p></details>
+          <details class="ropt"><summary>sudo работает быстрее</summary><p><b class="v-bad">✗ Неверно.</b> Скорость тут ни при чём.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Какую часть SSH-ключа можно отдать админу, чтобы он пустил вас на сервер?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Закрытую</summary><p><b class="v-bad">✗ Неверно.</b> Закрытую часть не отдают никому, даже админу.</p></details>
+          <details class="ropt"><summary>Открытую, файл .pub</summary><p><b class="v-ok">✓ Верно.</b> Верно. Открытую часть (обычно файл .pub) можно отдавать кому угодно, это «замок».</p></details>
+          <details class="ropt"><summary>Обе</summary><p><b class="v-bad">✗ Неверно.</b> Закрытая часть всегда остаётся у вас.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Под каким пользователем работает ваша оболочка после <code>ssh anna@server</code>?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Под вашим пользователем Windows</summary><p><b class="v-bad">✗ Неверно.</b> Пользователь Windows остаётся на вашем компьютере.</p></details>
+          <details class="ropt"><summary>Под пользователем anna на сервере</summary><p><b class="v-ok">✓ Верно.</b> Верно. Имя до @ — пользователь на сервере.</p></details>
+          <details class="ropt"><summary>Под root</summary><p><b class="v-bad">✗ Неверно.</b> Под root вы бы зашли, только написав root@server.</p></details>
+        </div>
+        
+      </div>
+    </section>
+  </article>
+<p class="totop"><a href="#toc">↑ к оглавлению</a></p>
+
+  <article class="lesson" id="habits">
+    <header class="lesson-head">
+      <span class="eyebrow">Урок 15 · Привычки</span>
+      <h2>Десять привычек, чтобы ничего не сломать</h2>
+      <p class="lead">Почти все серьёзные поломки на серверах — не сложные ошибки, а пропущенная простая проверка.</p>
+    </header>
+    <div class="prose">
+      <ul>
+        <li><b>Посмотри, где ты,</b> прежде чем удалять или переносить. Одна и та же команда в другой папке делает другое.</li>
+        <li><b>Проверь шаблон</b> перед <code>rm</code>: сначала покажи файлы тем же шаблоном (<code>ls *.log</code>), потом удаляй.</li>
+        <li><b>Не работай под root.</b> sudo — точечно, на одну команду.</li>
+        <li><b>Копия перед правкой</b> любого важного файла.</li>
+        <li><b>Долгое — в tmux.</b> Заходи в него до запуска, а не после обрыва.</li>
+        <li><b>Не запускай непонятное из интернета,</b> особенно с sudo или вида «скачай и сразу выполни».</li>
+        <li><b>Tab вместо ручного набора</b> путей: меньше опечаток.</li>
+        <li><b>Читай ошибку целиком,</b> начиная с первой.</li>
+        <li><b>Не уверен — Ctrl+C.</b> Остановить почти всегда безопаснее, чем продолжить.</li>
+        <li><b>Пароли и закрытые ключи — никому.</b> Ни в чат, ни в скриншот.</li>
+      </ul>
+    </div>
+    
+    <h3>Примеры из жизни</h3>
+    <div class="examples">
+      <div class="ex"><div class="term">anna@server:~$ ls *.log
+bot.log  old.log  error.log
+anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначала посмотреть, что захватит шаблон. Тут видно, что <code>*.log</code> удалил бы и рабочий <code>bot.log</code>. Удаляем только нужный файл.</p></div>
+      <div class="ex"><div class="term">curl -s https://example.com/install.sh | sudo bash</div><p><b>Почему это тревожный знак.</b> Скрипт из интернета скачивается и сразу выполняется от root, и никто его не прочитал. Сначала скачать, прочитать, потом решать.</p></div>
+    </div>
+    <section class="quiz">
+      <h3>Проверь себя на примерах</h3>
+      <div class="q" data-q>
+        <p class="qt">Нужно удалить старые логи шаблоном <code>*.log</code>. Что сделать первым?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Выполнить ls с тем же шаблоном и посмотреть список</summary><p><b class="v-ok">✓ Верно.</b> Верно. Так вы увидите, что именно попадёт под удаление.</p></details>
+          <details class="ropt"><summary>Сразу rm *.log</summary><p><b class="v-bad">✗ Неверно.</b> Слишком рано: вы не знаете, что удалится.</p></details>
+          <details class="ropt"><summary>rm -f *.log, чтобы не спрашивало</summary><p><b class="v-bad">✗ Неверно.</b> -f только убирает вопросы, это опаснее.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">В инструкции из интернета есть команда, которую вы не понимаете, с sudo. Как поступить?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Выполнить, раз в инструкции написано</summary><p><b class="v-bad">✗ Неверно.</b> С sudo непонятная команда может сделать с системой что угодно.</p></details>
+          <details class="ropt"><summary>Разобрать по частям или спросить, и только потом выполнять</summary><p><b class="v-ok">✓ Верно.</b> Верно. Понять, а потом решать.</p></details>
+        </div>
+        
+      </div>
+    </section>
+    <section class="quiz"><h3>Итоговые вопросы урока</h3>
+      <div class="q" data-q>
+        <p class="qt">Команда делает что-то не то, а вы не понимаете что. Лучшее первое действие?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Ctrl+C</summary><p><b class="v-ok">✓ Верно.</b> Верно. Остановить почти всегда безопаснее.</p></details>
+          <details class="ropt"><summary>Подождать, вдруг само пройдёт</summary><p><b class="v-bad">✗ Неверно.</b> Вы можете не дождаться ничего хорошего.</p></details>
+          <details class="ropt"><summary>Перезагрузить сервер</summary><p><b class="v-bad">✗ Неверно.</b> Это слишком грубо и затронет всех.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Коллега просит прислать ваш закрытый SSH-ключ, чтобы «быстро проверить». Что делать?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Прислать в личку</summary><p><b class="v-bad">✗ Неверно.</b> Закрытый ключ — это ваше удостоверение.</p></details>
+          <details class="ropt"><summary>Не присылать: закрытый ключ не отдают никому</summary><p><b class="v-ok">✓ Верно.</b> Верно. Пусть админ добавит открытый ключ коллеги, а свой закрытый отдавать нельзя.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Вы собираетесь запустить импорт базы на два часа через SSH. Что сделать сначала?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Зайти в tmux</summary><p><b class="v-ok">✓ Верно.</b> Верно. Иначе обрыв связи убьёт импорт.</p></details>
+          <details class="ropt"><summary>Зайти под root</summary><p><b class="v-bad">✗ Неверно.</b> Права root тут не помогут пережить обрыв.</p></details>
+          <details class="ropt"><summary>Не закрывать окно два часа</summary><p><b class="v-bad">✗ Неверно.</b> Окно всё равно может закрыться или отвалиться.</p></details>
+        </div>
+        
+      </div>
+    </section>
+  </article>
+<p class="totop"><a href="#toc">↑ к оглавлению</a></p>
+
+  <article class="lesson" id="final">
+    <header class="lesson-head">
+      <span class="eyebrow">Итог</span>
+      <h2>Всё на одной странице</h2>
+      <p class="lead">Если запомнить только это, большинство странностей терминала станут понятными.</p>
+    </header>
+    <div class="prose">
+      <ul>
+        <li><b>Устройство</b> — слои: железо, ядро, службы, оболочка или рабочий стол, программы. Программы только просят, а ядро делает и проверяет права. Компьютер и сервер различаются верхними слоями.</li>
+        <li><b>Пользователь</b> — удостоверение. Система различает удостоверения, а не людей.</li>
+        <li><b>Группа</b> — клуб, которому выдают доступ. Состав групп читается при входе.</li>
+        <li><b>Права</b> — три категории (владелец, группа, остальные) по три разрешения (r, w, x). Проверка останавливается на первом совпадении. У папки w означает право удалять внутри.</li>
+        <li><b>Процесс</b> — работающая программа с номером, владельцем и родителем. Работает с правами того, кто запустил.</li>
+        <li><b>Передний план и фон</b> — кто из задач терминала владеет клавиатурой. Ctrl+Z замораживает, а не закрывает.</li>
+        <li><b>tmux</b> — терминалы живут на сервере, а вы приходите и уходите.</li>
+        <li><b>Песочница</b> — свой Linux (WSL), где ошибки ничего не стоят. Пароль при наборе не виден, так задумано.</li>
+        <li><b>Пути</b> — одно дерево от <code>/</code>. Абсолютный путь от корня, относительный от текущей папки. <code>~</code> дом, <code>..</code> выше. Регистр важен.</li>
+        <li><b>Команда</b> — команда, флаги, аргументы через пробел. Имена с пробелами в кавычки. Молчание значит успех. Tab, стрелка вверх, Ctrl+C.</li>
+        <li><b>Файлы</b> — корзины нет, затирание без вопросов. Шаблон сначала проверить через ls. <code>rm -rf</code> — с особым вниманием.</li>
+        <li><b>Чтение и правка</b> — less и tail -f для чтения, nano для правки. Выход из vim: Esc, <code>:q!</code> или <code>:wq</code>. Копия перед правкой, служба перечитывает настройки при перезапуске.</li>
+        <li><b>Ошибки</b> — программа: что: причина. Начинать с первой. Permission denied — права, No such file — путь, command not found — имя программы.</li>
+        <li><b>sudo и SSH</b> — sudo на одну команду и с вашим паролем. Файлы от sudo принадлежат root. Закрытый ключ никому. Изменился отпечаток сервера — стоп.</li>
+        <li><b>Привычки</b> — посмотри, где ты. Проверь шаблон. Копия перед правкой. Долгое в tmux. Не уверен — Ctrl+C.</li>
+      </ul>
+    </div>
+    
+    
+    
+  </article>
+<p class="totop"><a href="#toc">↑ к оглавлению</a></p>
+</div>
+</body>
+</html>
