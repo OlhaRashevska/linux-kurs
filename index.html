@@ -317,6 +317,8 @@ table.matrix { border-collapse: collapse; font-size: .93rem; min-width: 420px; }
           <button class="btn" id="tr-load">Восстановить из кода</button>
         </div>
         <p class="lab-hint" id="tr-msg"></p>
+        <p class="lab-hint">Хотите пройти курс с чистого листа? Кнопка ниже сотрёт все галки, баллы и повторялку. Перед сбросом код старого прогресса появится в поле выше: сохраните его, если вдруг захотите вернуть.</p>
+        <div class="row"><button class="btn" id="tr-wipe">Сбросить весь прогресс</button></div>
       </details>
     </div>
   </aside>
@@ -3811,6 +3813,15 @@ anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначал
   $("tr-load").addEventListener("click", function () {
     try { importCode($("tr-code").value); $("tr-msg").textContent = "Прогресс восстановлен."; route(); }
     catch (e) { $("tr-msg").textContent = "Не получилось: " + e.message; }
+  });
+  $("tr-wipe").addEventListener("click", function () {
+    var backup = exportCode();
+    if (!window.confirm("Стереть весь прогресс: галки, баллы, повторялку и экзамен? Отменить можно только кодом, который появится в поле.")) return;
+    PKEYS.forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
+    pts = {}; srs = {}; revPts = 0;
+    $("tr-code").value = backup;
+    $("tr-msg").textContent = "Прогресс сброшен. В поле — код старого прогресса: если передумаете, нажмите «Восстановить из кода».";
+    if (location.hash && location.hash !== "#start") location.hash = "#start"; else route();
   });
   route();
 })();
