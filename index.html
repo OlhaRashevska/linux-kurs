@@ -2642,7 +2642,7 @@ anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначал
       li.appendChild(a); nav.appendChild(li);
     });
     var c = QUIZZED.filter(function (k) { return done[k]; }).length;
-    $("progress-text").innerHTML = "<span class='rank'>" + rank() + "</span><br>Пройдено " + c + " из " + QUIZZED.length + "<br><b class='score'>Баллы: " + totalPts() + "</b><br><span class='lab-hint'>уроки " + (totalPts() - revPts - (examBest() >= EXAM_PASS ? EXAM_BONUS : 0)) + " из " + maxPts() + (revPts ? " · повторение " + revPts : "") + (examBest() >= EXAM_PASS ? " · экзамен " + EXAM_BONUS : "") + "</span>";
+    $("progress-text").innerHTML = "<span class='rank'>" + rank() + "</span><br>Пройдено " + c + " из " + QUIZZED.length + "<br><b class='score'>Баллы: " + totalPts() + "</b><br><span class='lab-hint'>за ответы в уроках " + (totalPts() - revPts - (examBest() >= EXAM_PASS ? EXAM_BONUS : 0)) + " из " + maxPts() + (revPts ? " · повторение " + revPts : "") + (examBest() >= EXAM_PASS ? " · экзамен " + EXAM_BONUS : "") + "</span>";
     $("progress-bar").style.width = (c / QUIZZED.length * 100) + "%";
   }
 
