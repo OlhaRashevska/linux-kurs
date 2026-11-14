@@ -226,6 +226,20 @@ table.matrix { border-collapse: collapse; font-size: .93rem; min-width: 420px; }
 .tm-node:hover, .tm-node:focus-visible { background: rgba(255,255,255,.12); }
 .tm-node.sub { color: #9FD3B5; }
 .steps-static { display: grid; gap: 10px; }
+.pn-digits { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+.pn-col { display: flex; flex-direction: column; gap: 6px; }
+.pn-btns { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; }
+.pn-b { padding: 6px 0; }
+.pn-explain { display: flex; flex-direction: column; gap: 4px; font-size: .95rem; }
+.numtab td:nth-child(3), .numtab td:nth-child(4) { text-align: left !important; }
+.hm-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+.hm-list { display: flex; flex-direction: column; gap: 8px; }
+.hm-win { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: var(--surface); display: flex; flex-direction: column; gap: 6px; font-size: .9rem; }
+.hm-win.dead { opacity: .6; border-style: dashed; }
+.bar-anat { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; }
+.ba-seg { background: none; border: 0; padding: 2px 4px; border-radius: 4px; font: inherit; color: inherit; cursor: pointer; }
+.ba-seg:hover, .ba-seg.on { background: rgba(0,0,0,.18); outline: 1px solid rgba(0,0,0,.35); }
+.ba-right { margin-left: auto; }
 .tm-scroll { background: #F0B35A; color: #1a1a1a; padding: 3px 10px; font-size: .78rem; }
 .phform { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
 .phform label { display: flex; flex-direction: column; gap: 4px; font-size: .88rem; color: var(--muted); }
@@ -299,7 +313,7 @@ table.matrix { border-collapse: collapse; font-size: .93rem; min-width: 420px; }
 <span class="eyebrow">Версия для чтения на телефоне</span>
 <h1>Linux для пользователя</h1>
 <p class="lab-hint">Все уроки на одной странице. Нажмите на вариант ответа, чтобы увидеть, верный ли он, и объяснение. Модели с кнопками, баллы, замки и экзамен есть только в полной версии на компьютере.</p>
-<ol><li><a href="#start"><span class="n">0</span> Начало</a></li><li><a href="#arch"><span class="n">1</span> Устройство</a></li><li><a href="#users"><span class="n">2</span> Пользователи</a></li><li><a href="#groups"><span class="n">3</span> Группы</a></li><li><a href="#perms"><span class="n">4</span> Права</a></li><li><a href="#procs"><span class="n">5</span> Процессы</a></li><li><a href="#jobs"><span class="n">6</span> Фон</a></li><li><a href="#tmux"><span class="n">7</span> tmux</a></li><li><a href="#sandbox"><span class="n">8</span> Песочница</a></li><li><a href="#paths"><span class="n">9</span> Где я: пути</a></li><li><a href="#cmd"><span class="n">10</span> Команда</a></li><li><a href="#files"><span class="n">11</span> Файлы</a></li><li><a href="#edit"><span class="n">12</span> Читать и править</a></li><li><a href="#errors"><span class="n">13</span> Ошибки</a></li><li><a href="#sudo"><span class="n">14</span> sudo и SSH</a></li><li><a href="#phone"><span class="n">15</span> Сервер с iPhone</a></li><li><a href="#habits"><span class="n">16</span> Привычки</a></li><li><a href="#final"><span class="n">17</span> Итог</a></li></ol>
+<ol><li><a href="#start"><span class="n">0</span> Начало</a></li><li><a href="#arch"><span class="n">1</span> Устройство</a></li><li><a href="#users"><span class="n">2</span> Пользователи</a></li><li><a href="#groups"><span class="n">3</span> Группы</a></li><li><a href="#perms"><span class="n">4</span> Права</a></li><li><a href="#procs"><span class="n">5</span> Процессы</a></li><li><a href="#jobs"><span class="n">6</span> Фон</a></li><li><a href="#tmux"><span class="n">7</span> tmux</a></li><li><a href="#tmuxwin"><span class="n">8</span> Окна tmux</a></li><li><a href="#sandbox"><span class="n">9</span> Песочница</a></li><li><a href="#paths"><span class="n">10</span> Где я: пути</a></li><li><a href="#cmd"><span class="n">11</span> Команда</a></li><li><a href="#files"><span class="n">12</span> Файлы</a></li><li><a href="#edit"><span class="n">13</span> Читать и править</a></li><li><a href="#errors"><span class="n">14</span> Ошибки</a></li><li><a href="#sudo"><span class="n">15</span> sudo и SSH</a></li><li><a href="#phone"><span class="n">16</span> Сервер с iPhone</a></li><li><a href="#habits"><span class="n">17</span> Привычки</a></li><li><a href="#final"><span class="n">18</span> Итог</a></li></ol>
 </nav>
 
   <article class="lesson" id="start">
@@ -633,6 +647,99 @@ oleg@server:~$ (после нового входа) groups=1002(oleg),1006(dev),
     </div>
     <div class="big-idea"><b>Для папки буквы значат другое.</b> Папка — это список имён. <b>r</b> позволяет прочитать этот список. <b>w</b> позволяет его менять: создавать, переименовывать и <b>удалять</b> файлы. <b>x</b> позволяет войти в папку и пройти сквозь неё к файлам. Отсюда неожиданное следствие: удалить файл можно, имея право записи в папку, даже если сам файл вам писать нельзя.</div>
     
+    <h3>Цифры в правах: подробно</h3>
+    <div class="prose">
+      <p>Вместо девяти букв <code>rw-r-----</code> права часто пишут тремя цифрами: <code>640</code>. Это то же самое, только короче. Перевод устроен просто.</p>
+      <p><b>Шаг 1. У каждой буквы свой вес:</b></p>
+      <ul>
+        <li><code>r</code> (читать) = <b>4</b></li>
+        <li><code>w</code> (писать) = <b>2</b></li>
+        <li><code>x</code> (выполнять, входить) = <b>1</b></li>
+        <li><code>-</code> (нет права) = <b>0</b></li>
+      </ul>
+      <p><b>Шаг 2. В каждой тройке веса складываются</b> в одну цифру. <code>rw-</code> = 4 + 2 + 0 = <b>6</b>. <code>r-x</code> = 4 + 0 + 1 = <b>5</b>. <code>---</code> = <b>0</b>.</p>
+      <p><b>Шаг 3. Три цифры идут в том же порядке, что и тройки:</b> первая — владелец, вторая — группа, третья — остальные.</p>
+    </div>
+    <div class="tablewrap"><table class="matrix numtab">
+      <thead><tr><th>Цифра</th><th>Сумма</th><th>Буквы</th><th>Что можно</th></tr></thead>
+      <tbody>
+        <tr><td><b>0</b></td><td>0</td><td><code>---</code></td><td>ничего</td></tr>
+        <tr><td><b>1</b></td><td>1</td><td><code>--x</code></td><td>только выполнять или входить</td></tr>
+        <tr><td><b>2</b></td><td>2</td><td><code>-w-</code></td><td>только писать (почти не встречается)</td></tr>
+        <tr><td><b>3</b></td><td>2+1</td><td><code>-wx</code></td><td>писать и выполнять (почти не встречается)</td></tr>
+        <tr><td><b>4</b></td><td>4</td><td><code>r--</code></td><td>только читать</td></tr>
+        <tr><td><b>5</b></td><td>4+1</td><td><code>r-x</code></td><td>читать и выполнять (или входить в папку)</td></tr>
+        <tr><td><b>6</b></td><td>4+2</td><td><code>rw-</code></td><td>читать и писать</td></tr>
+        <tr><td><b>7</b></td><td>4+2+1</td><td><code>rwx</code></td><td>всё</td></tr>
+      </tbody>
+    </table></div>
+    <div class="big-idea"><b>Почему именно 4, 2 и 1.</b> Так любую комбинацию можно сложить единственным способом: никакие две разные комбинации не дают одну сумму. Поэтому по одной цифре всегда понятно, какие буквы в ней были. Запомнить легко: <b>4 — читать, 2 — писать, 1 — запускать</b>.</div>
+    <h3>Частые числа, которые стоит узнавать с первого взгляда</h3>
+    <div class="tablewrap"><table class="matrix numtab">
+      <thead><tr><th>Число</th><th>Буквы</th><th>Для чего</th></tr></thead>
+      <tbody>
+        <tr><td><b>600</b></td><td><code>rw-------</code></td><td>личный файл: пароли, ключи, настройки с секретами. Остальным ничего.</td></tr>
+        <tr><td><b>644</b></td><td><code>rw-r--r--</code></td><td>обычный файл: все читают, меняет только владелец.</td></tr>
+        <tr><td><b>640</b></td><td><code>rw-r-----</code></td><td>файл для своей группы: группа читает, остальным ничего.</td></tr>
+        <tr><td><b>664</b></td><td><code>rw-rw-r--</code></td><td>командный файл: группа тоже может править.</td></tr>
+        <tr><td><b>700</b></td><td><code>rwx------</code></td><td>личная папка или личный скрипт.</td></tr>
+        <tr><td><b>755</b></td><td><code>rwxr-xr-x</code></td><td>программа или открытая папка: все запускают или входят, меняет владелец.</td></tr>
+        <tr><td><b>750</b></td><td><code>rwxr-x---</code></td><td>папка или программа для своей группы.</td></tr>
+        <tr><td><b>775</b></td><td><code>rwxrwxr-x</code></td><td>командная папка: группа может создавать и удалять файлы.</td></tr>
+        <tr><td><b>777</b></td><td><code>rwxrwxrwx</code></td><td><b>всем всё.</b> Почти всегда ошибка: любой пользователь системы и любая взломанная служба может изменить или удалить.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="trap"><b>Про 777.</b> Когда что-то не работает из-за прав, в интернете часто советуют «поставь 777». Это как снять дверь с петель, потому что ключ заедает. Работать заработает, но войти теперь может кто угодно. Правильно — понять, кому именно нужен доступ, и дать ровно это: владельцу, группе или через sudo.</div>
+    
+    <h3>Как это выглядит в жизни</h3>
+    <div class="examples">
+      <div class="ex"><div class="term">chmod 600 ~/.ssh/id_ed25519</div><p><b>Что делает.</b> Команда <code>chmod</code> меняет права. Здесь закрытый ключ делается личным: читать и писать может только владелец. SSH даже откажется работать с ключом, если права на него шире.</p></div>
+      <div class="ex"><div class="term">chmod 755 deploy.sh
+ls -l deploy.sh
+-rwxr-xr-x 1 anna dev 900 deploy.sh</div><p><b>Как проверить.</b> После <code>chmod</code> посмотрите <code>ls -l</code>: буквы должны совпасть с числом. 755 = <code>rwx</code> <code>r-x</code> <code>r-x</code>.</p></div>
+      <div class="ex"><div class="term">chmod u+x script.sh
+chmod g+w otchet.txt
+chmod o-r zametka.txt</div><p><b>Второй способ — буквами.</b> <code>u</code> владелец, <code>g</code> группа, <code>o</code> остальные. <code>+</code> добавить, <code>-</code> убрать. Удобно, когда нужно поменять одно право и не трогать остальные. Число же задаёт все девять разом.</p></div>
+    </div>
+    <section class="quiz">
+      <h3>Проверь себя: цифры</h3>
+      <div class="q" data-q data-extra>
+        <p class="qt">Сколько будет <code>r-x</code> одной цифрой?</p>
+        <div class="opts">
+          <details class="ropt"><summary>6</summary><p><b class="v-bad">✗ Неверно.</b> 6 — это r и w (4+2).</p></details>
+          <details class="ropt"><summary>5</summary><p><b class="v-ok">✓ Верно.</b> Верно: r = 4, x = 1, вместе 5.</p></details>
+          <details class="ropt"><summary>3</summary><p><b class="v-bad">✗ Неверно.</b> 3 — это w и x (2+1).</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q data-extra>
+        <p class="qt">Что значит <code>chmod 640 otchet.txt</code>?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Владелец читает и пишет, группа только читает, остальным ничего</summary><p><b class="v-ok">✓ Верно.</b> Верно: 6 = rw- владельцу, 4 = r-- группе, 0 = --- остальным.</p></details>
+          <details class="ropt"><summary>Все читают и пишут</summary><p><b class="v-bad">✗ Неверно.</b> Первая цифра — владелец, а не все.</p></details>
+          <details class="ropt"><summary>Владелец только читает</summary><p><b class="v-bad">✗ Неверно.</b> Посмотрите на первую цифру: 6, а не 4.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q data-extra>
+        <p class="qt">Какое число у прав <code>rwxr-x---</code>?</p>
+        <div class="opts">
+          <details class="ropt"><summary>755</summary><p><b class="v-bad">✗ Неверно.</b> Последняя тройка ---, это 0, а не 5.</p></details>
+          <details class="ropt"><summary>750</summary><p><b class="v-ok">✓ Верно.</b> Верно: rwx = 7, r-x = 5, --- = 0.</p></details>
+          <details class="ropt"><summary>740</summary><p><b class="v-bad">✗ Неверно.</b> Вторая тройка r-x = 5, а не 4.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q data-extra>
+        <p class="qt">Скрипт не запускается из-за прав. Знакомый советует <code>chmod 777</code>. Что лучше?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Послушать: 777 решает всё</summary><p><b class="v-bad">✗ Неверно.</b> 777 даст всем пользователям право менять ваш скрипт.</p></details>
+          <details class="ropt"><summary>Добавить только нужное: chmod u+x script.sh (или 755, если запускать должны все)</summary><p><b class="v-ok">✓ Верно.</b> Верно. Не хватает только права x у владельца, его и добавляем. Остальное не трогаем.</p></details>
+          <details class="ropt"><summary>Поставить 000</summary><p><b class="v-bad">✗ Неверно.</b> 000 запретит всё, в том числе вам.</p></details>
+        </div>
+        
+      </div>
+    </section>
     <div class="trap"><b>Ловушка.</b> Если у владельца прав меньше, чем у группы, владелец всё равно получает только свои. Проверка остановилась на первом вопросе, до группы она не дошла. Попробуйте в конструкторе шаблон «Странный».</div>
     <h3>Примеры из жизни</h3>
     <div class="examples">
@@ -914,106 +1021,10 @@ anna@server:~$ _</div><p><b>Как читать.</b> Задача номер 2, 
         <tr><td>Прокрутить вверх, почитать старый вывод</td><td>Ctrl+B, потом [ ; листать стрелками; выйти — q</td><td>в tmux</td></tr>
         <tr><td>Переименовать окно</td><td>Ctrl+B, потом ,</td><td>в tmux</td></tr>
         <tr><td>Закрыть панель или окно</td><td><code>exit</code> (закрывается оболочка в ней)</td><td>в tmux</td></tr>
-        <tr><td>Закрыть окно целиком, со всеми панелями</td><td>Ctrl+B, потом &amp;, подтвердить y</td><td>в tmux</td></tr>
-        <tr><td>Спрятать окно, оставив работать</td><td><code>tmux new -d -s sklad</code> один раз, потом Ctrl+B, : и <code>move-window -t sklad:</code></td><td>в tmux</td></tr>
-        <tr><td>Вернуть спрятанное окно</td><td>Ctrl+B, : и <code>move-window -s sklad:имя</code></td><td>в tmux</td></tr>
-        <tr><td><b>Дерево всех сессий и окон</b>, перейти в любое</td><td>Ctrl+B, потом w; Enter — перейти, q — выйти, x не нажимать</td><td>в tmux</td></tr>
-        <tr><td>Список сессий</td><td>Ctrl+B, потом s</td><td>в tmux</td></tr>
-        <tr><td>Предыдущая / следующая сессия</td><td>Ctrl+B, потом ( / )</td><td>в tmux</td></tr>
-        <tr><td>Какие окна есть в сессии</td><td><code>tmux list-windows -t sklad</code></td><td>где угодно</td></tr>
         <tr><td>Совсем закрыть сессию со всем внутри</td><td><code>tmux kill-session -t rabota</code></td><td>в оболочке</td></tr>
       </tbody>
     </table></div>
     <div class="trap"><b>Свернуть и закрыть — разные вещи.</b> Ctrl+B, d только отключает вас, а программы внутри работают дальше. <code>exit</code> в последнем окне и <code>kill-session</code> завершают оболочку, и всё, что в ней было запущено, получает сигнал обрыва. Хотите вернуться к работе потом — сворачивайте, а не закрывайте.</div>
-    <h3>Пример: окно «rabota». Закрыть, спрятать, вернуть</h3>
-    <div class="prose">
-      <p>Допустим, внизу зелёная полоса <code>[main] 0:bash  1:rabota*</code>, и в окне «rabota» идёт ваша работа. С ним можно сделать три разные вещи:</p>
-    </div>
-    <div class="examples">
-      <div class="ex"><p class="sit">1. Закрыть насовсем</p><div class="term">exit
-или Ctrl+B, потом &amp;  →  kill-window rabota? (y/n)  →  y</div><p><b>Что будет.</b> Окно исчезнет из полосы вместе со всем, что в нём было. Программы получат сигнал обрыва. <b>Открыть «его же» потом нельзя</b>, можно только создать новое пустое окно с тем же именем: <code>tmux new-window -n rabota</code>.</p></div>
-      <div class="ex"><p class="sit">2. Убрать из полосы, но оставить работать</p><div class="term">tmux new -d -s sklad          (один раз: создать сессию-склад)
-Ctrl+B, потом :  →  move-window -t sklad:</div><p><b>Что будет.</b> Свернуть одно окно tmux не умеет: сворачивается только сессия целиком. Поэтому окно <b>переносят в другую сессию</b>, «склад». Оно пропадает из вашей полосы, но живёт на складе, и программы в нём работают. Флаг <code>-d</code> значит «создать, но не входить», так что набрать это можно прямо внутри tmux. Двоеточие после <code>sklad</code> обязательно: это значит «в сессию sklad».</p></div>
-      <div class="ex"><p class="sit">3. Вернуть то же самое окно</p><div class="term">Ctrl+B, потом :  →  move-window -s sklad:rabota</div><p><b>Что будет.</b> Окно «rabota» вернётся в текущую сессию, в полосу внизу, со всем выводом и работающими программами. Посмотреть, что лежит на складе: <code>tmux list-windows -t sklad</code>.</p></div>
-      <div class="ex"><p class="sit">Проще: держать работу отдельной сессией с самого начала</p><div class="term">tmux new -s rabota      создать
-Ctrl+B, потом d         свернуть: пропала с экрана, но живёт
-tmux attach -t rabota   вернуть то же самое</div><p><b>Совет.</b> Если что-то нужно часто прятать и возвращать, сделайте это отдельной <b>сессией</b>, а не окном. Сессии сворачиваются и возвращаются одной командой, без склада.</p></div>
-    </div>
-    <section class="quiz">
-      <h3>Проверь себя: окно «rabota»</h3>
-      <div class="q" data-q data-extra>
-        <p class="qt">Вы закрыли окно «rabota» через exit. Как открыть его же, со старым выводом и программами?</p>
-        <div class="opts">
-          <details class="ropt"><summary>tmux new-window -n rabota</summary><p><b class="v-bad">✗ Неверно.</b> Это создаст новое пустое окно с тем же именем, старого содержимого там не будет.</p></details>
-          <details class="ropt"><summary>Никак: закрытое окно не вернуть, можно только создать новое с тем же именем</summary><p><b class="v-ok">✓ Верно.</b> Верно. exit завершает оболочку окна, и содержимое пропадает. Чтобы можно было вернуться, окно надо было перенести на склад или свернуть сессию.</p></details>
-          <details class="ropt"><summary>tmux attach -t rabota</summary><p><b class="v-bad">✗ Неверно.</b> attach возвращает в сессию, а закрытого окна в ней уже нет.</p></details>
-        </div>
-        
-      </div>
-      <div class="q" data-q data-extra>
-        <p class="qt">Как убрать окно «rabota» из зелёной полосы, чтобы оно продолжало работать?</p>
-        <div class="opts">
-          <details class="ropt"><summary>Ctrl+B, потом d</summary><p><b class="v-bad">✗ Неверно.</b> Ctrl+B, d сворачивает всю сессию, а не одно окно.</p></details>
-          <details class="ropt"><summary>Перенести его в другую сессию: Ctrl+B, : и move-window -t sklad:</summary><p><b class="v-ok">✓ Верно.</b> Верно. Окно переезжает в сессию sklad, исчезает из вашей полосы и живёт там.</p></details>
-          <details class="ropt"><summary>Ctrl+B, потом &amp;</summary><p><b class="v-bad">✗ Неверно.</b> & закрывает окно насовсем.</p></details>
-        </div>
-        
-      </div>
-      <div class="q" data-q data-extra>
-        <p class="qt">Окно «rabota» лежит в сессии sklad. Как вернуть его к себе?</p>
-        <div class="opts">
-          <details class="ropt"><summary>Ctrl+B, : и move-window -s sklad:rabota</summary><p><b class="v-ok">✓ Верно.</b> Верно. -s значит «откуда», sklad:rabota — окно rabota из сессии sklad.</p></details>
-          <details class="ropt"><summary>tmux new -s sklad</summary><p><b class="v-bad">✗ Неверно.</b> Это создаст ещё одну сессию со складом, окно не вернётся.</p></details>
-          <details class="ropt"><summary>Ctrl+B, потом c</summary><p><b class="v-bad">✗ Неверно.</b> Это новое пустое окно, а не то же самое.</p></details>
-        </div>
-        
-      </div>
-    </section>
-    <h3>Много окон под разные задачи: наводим порядок</h3>
-    <div class="prose">
-      <p>Типичная картина: в сессии <code>main</code> накопилось десять окон под разные задачи, полоса внизу не помещается на экран. Закрывать нельзя, к задачам нужно возвращаться. План из четырёх шагов:</p>
-    </div>
-    <div class="steps-static">
-      <div class="ex"><p class="sit">Шаг 0. Дать окнам имена задач</p><div class="term">Ctrl+B, потом ,   →  ввести имя (bot, otchet, logi)  →  Enter</div><p>Пока окна называются <code>bash</code>, их не различить ни в полосе, ни на складе. Переименуйте каждое по задаче.</p></div>
-      <div class="ex"><p class="sit">Шаг 1. Один раз создать склад</p><div class="term">tmux new -d -s sklad</div><p>Отдельная сессия, куда будем убирать окна. <code>-d</code> — создать, но не входить в неё.</p></div>
-      <div class="ex"><p class="sit">Шаг 2. Убрать лишние окна</p><div class="term">(встать в окно)  Ctrl+B, потом :  →  move-window -t sklad:  →  Enter</div><p>Повторить для каждого окна, которое сейчас не нужно. Из полосы <code>main</code> оно пропадает, программы в нём работают дальше.</p></div>
-      <div class="ex"><p class="sit">Шаг 3. Найти и перейти: дерево всех окон</p><div class="term">Ctrl+B, потом w</div><p>Откроется дерево <b>всех сессий и окон</b>, включая склад, с предпросмотром содержимого. Стрелками выбрать окно, <b>Enter</b> — перейти в него, <b>q</b> — выйти без выбора. Стрелка вправо раскрывает сессию, влево сворачивает. <b>Не нажимайте x</b>: в дереве это «закрыть выбранное» (tmux переспросит y/n, ответьте n).</p></div>
-      <div class="ex"><p class="sit">Шаг 4. Вернуться в main или вернуть окно</p><div class="term">Ctrl+B, потом (   или   )        перейти в предыдущую / следующую сессию
-Ctrl+B, потом s                  список сессий, выбрать main и Enter
-Ctrl+B, потом :  →  move-window -s sklad:bot    вернуть окно bot в полосу</div><p>После перехода в окно на складе вы оказываетесь в сессии <code>sklad</code>. Чтобы вернуться к <code>main</code>, переключите сессию. Если окно снова нужно постоянно, верните его в полосу через <code>move-window -s</code>.</p></div>
-    </div>
-    <div class="big-idea"><b>Можно вообще ничего не прятать.</b> Если окна мешают только тем, что их много в полосе, переключайтесь через <b>Ctrl+B, w</b>: удобный список с предпросмотром, и не нужно помнить номера. Прятать на склад стоит то, что долго не понадобится.</div>
-    <div class="trap"><b>Не всё можно переносить и закрывать.</b> Некоторые программы находят своё окно tmux по имени или по сессии: агенты чата, боты, скрипты, которые туда что-то печатают. Если такое окно переименовать, перенести или закрыть, программа перестанет до него достучаться. Если не знаете, что работает в окне, не трогайте его и спросите того, кто его создал.<br><br><b>Как проверить.</b> У каждой панели есть постоянный номер вида <code>%5</code>. Он не меняется при переносе окна на склад и при переименовании. Если программа обращается к панели по такому номеру (например, мост чата запущен с <code>--tmux-input %5</code>), окно можно спокойно переносить: связь не порвётся. Если по имени окна или сессии — нельзя. Все номера видно так:<br><code>tmux list-panes -a -F '#{pane_id} #{session_name}:#{window_name}'</code><br>Закрывать такие окна нельзя в любом случае: вместе с окном умирает и агент.</div>
-    <section class="quiz">
-      <h3>Проверь себя: порядок в окнах</h3>
-      <div class="q" data-q data-extra>
-        <p class="qt">Как увидеть сразу все сессии и окна, включая склад, и перейти в нужное?</p>
-        <div class="opts">
-          <details class="ropt"><summary>Ctrl+B, потом n</summary><p><b class="v-bad">✗ Неверно.</b> Ctrl+B, n листает окна только текущей сессии.</p></details>
-          <details class="ropt"><summary>Ctrl+B, потом w</summary><p><b class="v-ok">✓ Верно.</b> Верно. Дерево всех сессий и окон с предпросмотром. Enter — перейти, q — выйти.</p></details>
-          <details class="ropt"><summary>tmux ls</summary><p><b class="v-bad">✗ Неверно.</b> tmux ls покажет только сессии, без окон, и перейти из него нельзя.</p></details>
-        </div>
-        
-      </div>
-      <div class="q" data-q data-extra>
-        <p class="qt">Вы перешли через дерево в окно на складе. Как вернуться в сессию main?</p>
-        <div class="opts">
-          <details class="ropt"><summary>Ctrl+B, потом ( или ), либо Ctrl+B, s и выбрать main</summary><p><b class="v-ok">✓ Верно.</b> Верно. ( и ) переключают сессии, а Ctrl+B, s даёт их список.</p></details>
-          <details class="ropt"><summary>Набрать exit</summary><p><b class="v-bad">✗ Неверно.</b> exit закроет окно, в котором вы стоите, то есть то самое окно со склада.</p></details>
-          <details class="ropt"><summary>Ctrl+B, потом d</summary><p><b class="v-bad">✗ Неверно.</b> Ctrl+B, d отключит вас от tmux совсем.</p></details>
-        </div>
-        
-      </div>
-      <div class="q" data-q data-extra>
-        <p class="qt">Зачем перед уборкой давать окнам имена?</p>
-        <div class="opts">
-          <details class="ropt"><summary>Чтобы они быстрее работали</summary><p><b class="v-bad">✗ Неверно.</b> Скорость тут ни при чём.</p></details>
-          <details class="ropt"><summary>Чтобы потом найти их на складе и в дереве и вернуть по имени</summary><p><b class="v-ok">✓ Верно.</b> Верно. Десять окон с именем bash не различить, а bot или otchet найдёте сразу и вернёте командой move-window -s sklad:bot.</p></details>
-          <details class="ropt"><summary>Без имени окно нельзя перенести</summary><p><b class="v-bad">✗ Неверно.</b> Окно без имени tmux перенесёт так же.</p></details>
-        </div>
-        
-      </div>
-    </section>
     
     <section class="quiz">
       <h3>Проверь себя: команды tmux</h3>
@@ -1125,9 +1136,217 @@ bot: 1 windows (created Mon Nov  9 10:02)</div><p><b>Что происходит
   </article>
 <p class="totop"><a href="#toc">↑ к оглавлению</a></p>
 
+  <article class="lesson" id="tmuxwin">
+    <header class="lesson-head">
+      <span class="eyebrow">Урок 8 · Окна tmux</span>
+      <h2>Закрыть или скрыть: полоса, склад, номера</h2>
+      <p class="lead">Окна копятся, полоса внизу не помещается, а закрывать страшно: в каждом окне идёт своя работа, у вас в каждом окне свой агент. Этот урок о том, как убрать окно с глаз, не убив работу в нём, и как потом его найти.</p>
+    </header>
+
+    <h3>Главное: закрыть и скрыть — это разные вещи</h3>
+    <div class="prose">
+      <p>Представьте, что каждое окно tmux — это кабинет, где сидит сотрудник (ваш агент) и работает.</p>
+      <ul>
+        <li><b>Закрыть окно</b> — уволить сотрудника и снести кабинет. Работа прекращена, всё, что было на столе, пропало. Вернуть <b>нельзя</b>. Можно построить новый кабинет с той же табличкой, но он будет пустой, и сотрудник там будет новый, ничего не помнящий.</li>
+        <li><b>Скрыть окно</b> — перевести сотрудника в кабинет на другом этаже. Он <b>продолжает работать</b>, просто его не видно из вашего коридора. Захотели — привели обратно, и всё на месте: разговор, вывод, состояние.</li>
+      </ul>
+      <p>На iPhone то же самое. <b>Скрыть</b> — как свернуть приложение: оно осталось в переключателе, вернулись, и вы там же. <b>Закрыть</b> — как смахнуть приложение вверх: оно выгружено, и при следующем открытии всё начнётся с нуля. Только в tmux скрытое окно по-настоящему продолжает работать, а iPhone свёрнутые приложения иногда усыпляет.</p>
+    </div>
+    <div class="tablewrap"><table class="matrix cheat">
+      <thead><tr><th></th><th>Скрыть</th><th>Закрыть</th></tr></thead>
+      <tbody>
+        <tr><td>В зелёной полосе</td><td>пропадает</td><td>пропадает</td></tr>
+        <tr><td>Программа или агент внутри</td><td><b>работает дальше</b></td><td><b>завершается</b>, несохранённое теряется</td></tr>
+        <tr><td>Можно вернуть то же самое?</td><td>да, со всем выводом</td><td>нет, только создать новое пустое</td></tr>
+        <tr><td>Как сделать</td><td>перенести на склад: Ctrl+B, : и <code>move-window -t sklad:</code></td><td><code>exit</code> в окне или Ctrl+B, &amp; и y</td></tr>
+      </tbody>
+    </table></div>
+    <div class="trap"><b>Почему «скрыть» делается через склад.</b> Спрятать одно окно, оставив его в той же сессии, tmux не умеет: всё, что в сессии, показывается в полосе. Поэтому окно <b>переносят в другую сессию</b>, «склад». В вашей полосе его больше нет, но оно живо. Свернуть целиком можно только всю сессию (Ctrl+B, d), и тогда пропадают сразу все её окна.</div>
+    
+
+    <h3>Что такое зелёная полоса</h3>
+    <div class="prose"><p>Это строка состояния tmux внизу экрана. Она видна, только когда вы внутри tmux, и по ней всегда понятно, где вы. Нажимайте на части полосы:</p></div>
+    
+
+    <h3>Имена, номера и постоянные ID</h3>
+    <div class="prose">
+      <p>У всего в tmux есть три способа называться:</p>
+    </div>
+    <div class="tablewrap"><table class="matrix cheat">
+      <thead><tr><th></th><th>Имя</th><th>Номер в полосе</th><th>Постоянный ID</th></tr></thead>
+      <tbody>
+        <tr><td>Сессия</td><td><code>main</code></td><td>—</td><td><code>$0</code></td></tr>
+        <tr><td>Окно</td><td><code>rabota</code></td><td><code>2</code></td><td><code>@2</code></td></tr>
+        <tr><td>Панель (кусок окна)</td><td>—</td><td><code>0</code> внутри окна</td><td><code>%5</code></td></tr>
+      </tbody>
+    </table></div>
+    <div class="prose">
+      <ul>
+        <li><b>Имя</b> меняете вы сами (Ctrl+B, <code>,</code>).</li>
+        <li><b>Номер в полосе</b> — просто место по порядку. Он меняется, когда окно переезжает: на складе у окна будет другой номер.</li>
+        <li><b>Постоянный ID</b> (<code>@</code> у окна, <code>%</code> у панели, <code>$</code> у сессии) выдаётся при создании и <b>не меняется никогда</b>: ни при переносе на склад, ни при переименовании. Пропадает, только когда окно закрыли.</li>
+      </ul>
+      <p>Поэтому программы, которые общаются с окном (мосты чата, агенты, скрипты), надёжнее всего держатся за ID панели вроде <code>%5</code>. Тогда окно можно переносить и переименовывать, связь не порвётся.</p>
+      <p><b>Как обращаться к окну в командах</b> (после <code>-t</code> или <code>-s</code>):</p>
+      <ul>
+        <li><code>main</code> — сессия;</li>
+        <li><code>main:rabota</code> или <code>main:2</code> — окно по имени или номеру в сессии;</li>
+        <li><code>main:2.0</code> — панель 0 в окне 2;</li>
+        <li><code>@2</code>, <code>%5</code> — прямо по постоянному ID, где бы окно ни находилось.</li>
+      </ul>
+    </div>
+    <h3>Примеры из жизни</h3>
+    <div class="examples">
+      <div class="ex"><p class="sit">Узнать, где вы и какие у вас ID.</p><div class="term">tmux display -p '#{session_name} #{window_index}:#{window_name} #{window_id} #{pane_id}'
+main 2:rabota @2 %5</div><p><b>Как читать.</b> Сессия main, окно номер 2 с именем rabota, постоянный ID окна @2, ID панели %5.</p></div>
+      <div class="ex"><p class="sit">Все панели всех сессий разом.</p><div class="term">tmux list-panes -a -F '#{pane_id} #{session_name}:#{window_name}'
+%0 main:ADS
+%5 main:linux
+%2 sklad:rabota</div><p><b>Как читать.</b> Окно rabota сейчас на складе, его панель по-прежнему %2. Если агент привязан к %2, он продолжает получать сообщения.</p></div>
+      <div class="ex"><p class="sit">До и после переноса на склад.</p><div class="term">до:     main  номер 2  имя rabota  окно @2  панель %2
+после:  sklad номер 1  имя rabota  окно @2  панель %2</div><p><b>Что видно.</b> Поменялись сессия и номер в полосе. ID окна и панели остались прежними. Это проверено на настоящем tmux.</p></div>
+    </div>
+    <h3>Пример: окно «rabota». Закрыть, спрятать, вернуть</h3>
+    <div class="prose">
+      <p>Допустим, внизу зелёная полоса <code>[main] 0:bash  1:rabota*</code>, и в окне «rabota» идёт ваша работа. С ним можно сделать три разные вещи:</p>
+    </div>
+    <div class="examples">
+      <div class="ex"><p class="sit">1. Закрыть насовсем</p><div class="term">exit
+или Ctrl+B, потом &amp;  →  kill-window rabota? (y/n)  →  y</div><p><b>Что будет.</b> Окно исчезнет из полосы вместе со всем, что в нём было. Программы получат сигнал обрыва. <b>Открыть «его же» потом нельзя</b>, можно только создать новое пустое окно с тем же именем: <code>tmux new-window -n rabota</code>.</p></div>
+      <div class="ex"><p class="sit">2. Убрать из полосы, но оставить работать</p><div class="term">tmux new -d -s sklad          (один раз: создать сессию-склад)
+Ctrl+B, потом :  →  move-window -t sklad:</div><p><b>Что будет.</b> Свернуть одно окно tmux не умеет: сворачивается только сессия целиком. Поэтому окно <b>переносят в другую сессию</b>, «склад». Оно пропадает из вашей полосы, но живёт на складе, и программы в нём работают. Флаг <code>-d</code> значит «создать, но не входить», так что набрать это можно прямо внутри tmux. Двоеточие после <code>sklad</code> обязательно: это значит «в сессию sklad».</p></div>
+      <div class="ex"><p class="sit">3. Вернуть то же самое окно</p><div class="term">Ctrl+B, потом :  →  move-window -s sklad:rabota</div><p><b>Что будет.</b> Окно «rabota» вернётся в текущую сессию, в полосу внизу, со всем выводом и работающими программами. Посмотреть, что лежит на складе: <code>tmux list-windows -t sklad</code>.</p></div>
+      <div class="ex"><p class="sit">Проще: держать работу отдельной сессией с самого начала</p><div class="term">tmux new -s rabota      создать
+Ctrl+B, потом d         свернуть: пропала с экрана, но живёт
+tmux attach -t rabota   вернуть то же самое</div><p><b>Совет.</b> Если что-то нужно часто прятать и возвращать, сделайте это отдельной <b>сессией</b>, а не окном. Сессии сворачиваются и возвращаются одной командой, без склада.</p></div>
+    </div>
+    <section class="quiz">
+      <h3>Проверь себя: окно «rabota»</h3>
+      <div class="q" data-q>
+        <p class="qt">Вы закрыли окно «rabota» через exit. Как открыть его же, со старым выводом и программами?</p>
+        <div class="opts">
+          <details class="ropt"><summary>tmux new-window -n rabota</summary><p><b class="v-bad">✗ Неверно.</b> Это создаст новое пустое окно с тем же именем, старого содержимого там не будет.</p></details>
+          <details class="ropt"><summary>Никак: закрытое окно не вернуть, можно только создать новое с тем же именем</summary><p><b class="v-ok">✓ Верно.</b> Верно. exit завершает оболочку окна, и содержимое пропадает. Чтобы можно было вернуться, окно надо было перенести на склад или свернуть сессию.</p></details>
+          <details class="ropt"><summary>tmux attach -t rabota</summary><p><b class="v-bad">✗ Неверно.</b> attach возвращает в сессию, а закрытого окна в ней уже нет.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Как убрать окно «rabota» из зелёной полосы, чтобы оно продолжало работать?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Ctrl+B, потом d</summary><p><b class="v-bad">✗ Неверно.</b> Ctrl+B, d сворачивает всю сессию, а не одно окно.</p></details>
+          <details class="ropt"><summary>Перенести его в другую сессию: Ctrl+B, : и move-window -t sklad:</summary><p><b class="v-ok">✓ Верно.</b> Верно. Окно переезжает в сессию sklad, исчезает из вашей полосы и живёт там.</p></details>
+          <details class="ropt"><summary>Ctrl+B, потом &amp;</summary><p><b class="v-bad">✗ Неверно.</b> & закрывает окно насовсем.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Окно «rabota» лежит в сессии sklad. Как вернуть его к себе?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Ctrl+B, : и move-window -s sklad:rabota</summary><p><b class="v-ok">✓ Верно.</b> Верно. -s значит «откуда», sklad:rabota — окно rabota из сессии sklad.</p></details>
+          <details class="ropt"><summary>tmux new -s sklad</summary><p><b class="v-bad">✗ Неверно.</b> Это создаст ещё одну сессию со складом, окно не вернётся.</p></details>
+          <details class="ropt"><summary>Ctrl+B, потом c</summary><p><b class="v-bad">✗ Неверно.</b> Это новое пустое окно, а не то же самое.</p></details>
+        </div>
+        
+      </div>
+    </section>
+    <h3>Много окон под разные задачи: наводим порядок</h3>
+    <div class="prose">
+      <p>Типичная картина: в сессии <code>main</code> накопилось десять окон под разные задачи, полоса внизу не помещается на экран. Закрывать нельзя, к задачам нужно возвращаться. План из четырёх шагов:</p>
+    </div>
+    <div class="steps-static">
+      <div class="ex"><p class="sit">Шаг 0. Дать окнам имена задач</p><div class="term">Ctrl+B, потом ,   →  ввести имя (bot, otchet, logi)  →  Enter</div><p>Пока окна называются <code>bash</code>, их не различить ни в полосе, ни на складе. Переименуйте каждое по задаче.</p></div>
+      <div class="ex"><p class="sit">Шаг 1. Один раз создать склад</p><div class="term">tmux new -d -s sklad</div><p>Отдельная сессия, куда будем убирать окна. <code>-d</code> — создать, но не входить в неё.</p></div>
+      <div class="ex"><p class="sit">Шаг 2. Убрать лишние окна</p><div class="term">(встать в окно)  Ctrl+B, потом :  →  move-window -t sklad:  →  Enter</div><p>Повторить для каждого окна, которое сейчас не нужно. Из полосы <code>main</code> оно пропадает, программы в нём работают дальше.</p></div>
+      <div class="ex"><p class="sit">Шаг 3. Найти и перейти: дерево всех окон</p><div class="term">Ctrl+B, потом w</div><p>Откроется дерево <b>всех сессий и окон</b>, включая склад, с предпросмотром содержимого. Стрелками выбрать окно, <b>Enter</b> — перейти в него, <b>q</b> — выйти без выбора. Стрелка вправо раскрывает сессию, влево сворачивает. <b>Не нажимайте x</b>: в дереве это «закрыть выбранное» (tmux переспросит y/n, ответьте n).</p></div>
+      <div class="ex"><p class="sit">Шаг 4. Вернуться в main или вернуть окно</p><div class="term">Ctrl+B, потом (   или   )        перейти в предыдущую / следующую сессию
+Ctrl+B, потом s                  список сессий, выбрать main и Enter
+Ctrl+B, потом :  →  move-window -s sklad:bot    вернуть окно bot в полосу</div><p>После перехода в окно на складе вы оказываетесь в сессии <code>sklad</code>. Чтобы вернуться к <code>main</code>, переключите сессию. Если окно снова нужно постоянно, верните его в полосу через <code>move-window -s</code>.</p></div>
+    </div>
+    <div class="big-idea"><b>Можно вообще ничего не прятать.</b> Если окна мешают только тем, что их много в полосе, переключайтесь через <b>Ctrl+B, w</b>: удобный список с предпросмотром, и не нужно помнить номера. Прятать на склад стоит то, что долго не понадобится.</div>
+    <div class="trap"><b>Не всё можно переносить и закрывать.</b> Некоторые программы находят своё окно tmux по имени или по сессии: агенты чата, боты, скрипты, которые туда что-то печатают. Если такое окно переименовать, перенести или закрыть, программа перестанет до него достучаться. Если не знаете, что работает в окне, не трогайте его и спросите того, кто его создал.<br><br><b>Как проверить.</b> У каждой панели есть постоянный номер вида <code>%5</code>. Он не меняется при переносе окна на склад и при переименовании. Если программа обращается к панели по такому номеру (например, мост чата запущен с <code>--tmux-input %5</code>), окно можно спокойно переносить: связь не порвётся. Если по имени окна или сессии — нельзя. Все номера видно так:<br><code>tmux list-panes -a -F '#{pane_id} #{session_name}:#{window_name}'</code><br>Закрывать такие окна нельзя в любом случае: вместе с окном умирает и агент.</div>
+    <section class="quiz">
+      <h3>Проверь себя: порядок в окнах</h3>
+      <div class="q" data-q>
+        <p class="qt">Как увидеть сразу все сессии и окна, включая склад, и перейти в нужное?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Ctrl+B, потом n</summary><p><b class="v-bad">✗ Неверно.</b> Ctrl+B, n листает окна только текущей сессии.</p></details>
+          <details class="ropt"><summary>Ctrl+B, потом w</summary><p><b class="v-ok">✓ Верно.</b> Верно. Дерево всех сессий и окон с предпросмотром. Enter — перейти, q — выйти.</p></details>
+          <details class="ropt"><summary>tmux ls</summary><p><b class="v-bad">✗ Неверно.</b> tmux ls покажет только сессии, без окон, и перейти из него нельзя.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Вы перешли через дерево в окно на складе. Как вернуться в сессию main?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Ctrl+B, потом ( или ), либо Ctrl+B, s и выбрать main</summary><p><b class="v-ok">✓ Верно.</b> Верно. ( и ) переключают сессии, а Ctrl+B, s даёт их список.</p></details>
+          <details class="ropt"><summary>Набрать exit</summary><p><b class="v-bad">✗ Неверно.</b> exit закроет окно, в котором вы стоите, то есть то самое окно со склада.</p></details>
+          <details class="ropt"><summary>Ctrl+B, потом d</summary><p><b class="v-bad">✗ Неверно.</b> Ctrl+B, d отключит вас от tmux совсем.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Зачем перед уборкой давать окнам имена?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Чтобы они быстрее работали</summary><p><b class="v-bad">✗ Неверно.</b> Скорость тут ни при чём.</p></details>
+          <details class="ropt"><summary>Чтобы потом найти их на складе и в дереве и вернуть по имени</summary><p><b class="v-ok">✓ Верно.</b> Верно. Десять окон с именем bash не различить, а bot или otchet найдёте сразу и вернёте командой move-window -s sklad:bot.</p></details>
+          <details class="ropt"><summary>Без имени окно нельзя перенести</summary><p><b class="v-bad">✗ Неверно.</b> Окно без имени tmux перенесёт так же.</p></details>
+        </div>
+        
+      </div>
+    </section>
+    <h3>Шпаргалка по окнам</h3>
+    <div class="tablewrap"><table class="matrix cheat">
+      <thead><tr><th>Что нужно</th><th>Что набрать или нажать</th><th>Где</th></tr></thead>
+      <tbody>
+        <tr><td>Закрыть окно целиком, со всеми панелями</td><td>Ctrl+B, потом &amp;, подтвердить y</td><td>в tmux</td></tr>
+        <tr><td>Спрятать окно, оставив работать</td><td><code>tmux new -d -s sklad</code> один раз, потом Ctrl+B, : и <code>move-window -t sklad:</code></td><td>в tmux</td></tr>
+        <tr><td>Вернуть спрятанное окно</td><td>Ctrl+B, : и <code>move-window -s sklad:имя</code></td><td>в tmux</td></tr>
+        <tr><td><b>Дерево всех сессий и окон</b>, перейти в любое</td><td>Ctrl+B, потом w; Enter — перейти, q — выйти, x не нажимать</td><td>в tmux</td></tr>
+        <tr><td>Список сессий</td><td>Ctrl+B, потом s</td><td>в tmux</td></tr>
+        <tr><td>Предыдущая / следующая сессия</td><td>Ctrl+B, потом ( / )</td><td>в tmux</td></tr>
+        <tr><td>Какие окна есть в сессии</td><td><code>tmux list-windows -t sklad</code></td><td>где угодно</td></tr>
+        <tr><td>Узнать свои ID</td><td><code>tmux display -p '#{window_id} #{pane_id}'</code></td><td>в tmux</td></tr>
+        <tr><td>Все панели с ID</td><td><code>tmux list-panes -a -F '#{pane_id} #{session_name}:#{window_name}'</code></td><td>где угодно</td></tr>
+      </tbody>
+    </table></div>
+    
+    <section class="quiz"><h3>Итоговые вопросы урока</h3>
+      <h3>Итоговые вопросы урока</h3>
+      <div class="q" data-q>
+        <p class="qt">Чем «скрыть» окно отличается от «закрыть»?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Ничем, в обоих случаях окно пропадает из полосы</summary><p><b class="v-bad">✗ Неверно.</b> Из полосы пропадают оба, разница в том, что происходит с работой внутри.</p></details>
+          <details class="ropt"><summary>Скрытое продолжает работать и его можно вернуть, закрытое умирает навсегда</summary><p><b class="v-ok">✓ Верно.</b> Верно. Скрытое окно живёт на складе, закрытое умирает вместе с агентом.</p></details>
+          <details class="ropt"><summary>Закрытое можно вернуть, а скрытое нет</summary><p><b class="v-bad">✗ Неверно.</b> Наоборот: закрытое не вернуть.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Окно перенесли на склад и переименовали. Что из этого осталось прежним?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Номер в полосе</summary><p><b class="v-bad">✗ Неверно.</b> Номер в полосе меняется: на складе у окна своё место.</p></details>
+          <details class="ropt"><summary>Постоянные ID: окна (@) и панели (%)</summary><p><b class="v-ok">✓ Верно.</b> Верно. @ и % выдаются при создании и не меняются, пока окно живо.</p></details>
+          <details class="ropt"><summary>Имя окна</summary><p><b class="v-bad">✗ Неверно.</b> Его как раз переименовали.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Что значит звёздочка в полосе <code>[main] 0:bash- 1:bot 2:rabota*</code>?</p>
+        <div class="opts">
+          <details class="ropt"><summary>rabota — окно, которое сейчас на экране</summary><p><b class="v-ok">✓ Верно.</b> Верно. Звёздочка — текущее окно, минус — предыдущее.</p></details>
+          <details class="ropt"><summary>rabota — важное окно</summary><p><b class="v-bad">✗ Неверно.</b> Звёздочка не про важность.</p></details>
+          <details class="ropt"><summary>В окне rabota ошибка</summary><p><b class="v-bad">✗ Неверно.</b> Ошибки так не показываются.</p></details>
+        </div>
+        
+      </div>
+    </section>
+  </article>
+<p class="totop"><a href="#toc">↑ к оглавлению</a></p>
+
   <article class="lesson" id="sandbox">
     <header class="lesson-head">
-      <span class="eyebrow">Урок 8 · Своя песочница</span>
+      <span class="eyebrow">Урок 9 · Своя песочница</span>
       <h2>Тренироваться там, где ничего не жалко</h2>
       <p class="lead">Учиться удалять файлы на рабочем сервере — плохая идея. Нужен свой Linux, который можно сломать и поставить заново за пять минут.</p>
     </header>
@@ -1203,7 +1422,7 @@ Public  Anna</div><p><b>Как читать.</b> Диск C: подключён 
 
   <article class="lesson" id="paths">
     <header class="lesson-head">
-      <span class="eyebrow">Урок 9 · Где я</span>
+      <span class="eyebrow">Урок 10 · Где я</span>
       <h2>Одно дерево папок и ваше место в нём</h2>
       <p class="lead">Половина вопросов «почему не работает» на самом деле про то, что вы стоите не в той папке или указали путь не оттуда.</p>
     </header>
@@ -1291,7 +1510,7 @@ python: can't open file 'bot.py': No such file or directory</div><p><b>Что п
 
   <article class="lesson" id="cmd">
     <header class="lesson-head">
-      <span class="eyebrow">Урок 10 · Команда</span>
+      <span class="eyebrow">Урок 11 · Команда</span>
       <h2>Из чего состоит команда</h2>
       <p class="lead">Любая команда — это фраза из слов, разделённых пробелами. Первое слово — что делать, остальные — как и над чем.</p>
     </header>
@@ -1379,7 +1598,7 @@ Ls: command not found</div><p><b>Что происходит.</b> Регистр
 
   <article class="lesson" id="files">
     <header class="lesson-head">
-      <span class="eyebrow">Урок 11 · Файлы</span>
+      <span class="eyebrow">Урок 12 · Файлы</span>
       <h2>Копировать, переносить, удалять: без корзины и без вопросов</h2>
       <p class="lead">В терминале нет корзины и нет окна «Вы уверены?». Команда делает ровно то, что написано, сразу и навсегда.</p>
     </header>
@@ -1466,7 +1685,7 @@ rm: cannot remove 'old': Is a directory</div><p><b>Что происходит.<
 
   <article class="lesson" id="edit">
     <header class="lesson-head">
-      <span class="eyebrow">Урок 12 · Читать и править</span>
+      <span class="eyebrow">Урок 13 · Читать и править</span>
       <h2>Посмотреть файл, поправить и выйти из редактора</h2>
       <p class="lead">Настройки в Linux — это обычные текстовые файлы. Поэтому умение их читать и править важнее любой графической панели.</p>
     </header>
@@ -1557,7 +1776,7 @@ _</div><p><b>Что происходит.</b> Терминал не завис, 
 
   <article class="lesson" id="errors">
     <header class="lesson-head">
-      <span class="eyebrow">Урок 13 · Ошибки</span>
+      <span class="eyebrow">Урок 14 · Ошибки</span>
       <h2>Ошибка — это подсказка, а не приговор</h2>
       <p class="lead">Сообщения об ошибках в Linux короткие и почти всегда точные. Нужно только знать, что каждое из них проверить.</p>
     </header>
@@ -1568,7 +1787,7 @@ _</div><p><b>Что происходит.</b> Терминал не завис, 
     <h3>Примеры из жизни</h3>
     <div class="examples">
       <div class="ex"><div class="term">anna@server:~$ nano /etc/hosts
-[ Error writing /etc/hosts: Permission denied ]</div><p><b>Что происходит.</b> Файл системный, принадлежит root. Читать вам можно, писать нет. Это нормально: системные файлы правят через <code>sudo</code>, урок 14.</p></div>
+[ Error writing /etc/hosts: Permission denied ]</div><p><b>Что происходит.</b> Файл системный, принадлежит root. Читать вам можно, писать нет. Это нормально: системные файлы правят через <code>sudo</code>, урок 15.</p></div>
       <div class="ex"><div class="term">Error: listen EADDRINUSE: address already in use :::3000</div><p><b>Что происходит.</b> Порт 3000 уже занят другим процессом, часто вашей же прошлой копией программы, которая не завершилась. Сначала найдите, кто его держит, и только потом решайте, что делать.</p></div>
     </div>
     <section class="quiz">
@@ -1636,7 +1855,7 @@ _</div><p><b>Что происходит.</b> Терминал не завис, 
 
   <article class="lesson" id="sudo">
     <header class="lesson-head">
-      <span class="eyebrow">Урок 14 · sudo и SSH</span>
+      <span class="eyebrow">Урок 15 · sudo и SSH</span>
       <h2>На минуту стать root и подключиться издалека</h2>
       <p class="lead">Две вещи, без которых работа на сервере не обходится: как сделать одно действие с правами root и что происходит, когда вы подключаетесь к серверу.</p>
     </header>
@@ -1729,7 +1948,7 @@ Are you sure you want to continue connecting (yes/no)?</div><p><b>Что про�
 
   <article class="lesson" id="phone">
     <header class="lesson-head">
-      <span class="eyebrow">Урок 15 · Сервер с iPhone</span>
+      <span class="eyebrow">Урок 16 · Сервер с iPhone</span>
       <h2>Терминал в кармане</h2>
       <p class="lead">К серверу можно подключиться прямо с телефона. Нужно приложение-терминал, адрес сервера, ваш логин и ключ. И обязательно tmux: телефон рвёт связь гораздо чаще компьютера.</p>
     </header>
@@ -1741,7 +1960,7 @@ Are you sure you want to continue connecting (yes/no)?</div><p><b>Что про�
         <li><b>Blink Shell</b> — платный, для тех, кто много работает с телефона или iPad. Умеет <b>mosh</b>: соединение, которое переживает смену сети (Wi-Fi → мобильный интернет) и засыпание телефона.</li>
         <li><b>a-Shell</b> — бесплатный, больше для экспериментов, чем для работы.</li>
       </ul>
-      <p>Устройство у всех одинаковое: это программа <code>ssh</code> из урока 14, только с кнопками.</p>
+      <p>Устройство у всех одинаковое: это программа <code>ssh</code> из урока 15, только с кнопками.</p>
       <h3>Что нужно знать для подключения</h3>
       <ul>
         <li><b>Адрес сервера</b> — имя (например, <code>server.example.com</code>) или IP-адрес. Его даёт админ.</li>
@@ -1830,7 +2049,7 @@ Disconnected</div><p><b>Что происходит.</b> Вы свернули �
 
   <article class="lesson" id="habits">
     <header class="lesson-head">
-      <span class="eyebrow">Урок 16 · Привычки</span>
+      <span class="eyebrow">Урок 17 · Привычки</span>
       <h2>Десять привычек, чтобы ничего не сломать</h2>
       <p class="lead">Почти все серьёзные поломки на серверах — не сложные ошибки, а пропущенная простая проверка.</p>
     </header>
@@ -1930,6 +2149,7 @@ anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначал
         <li><b>Ошибки</b> — программа: что: причина. Начинать с первой. Permission denied — права, No such file — путь, command not found — имя программы.</li>
         <li><b>sudo и SSH</b> — sudo на одну команду и с вашим паролем. Файлы от sudo принадлежат root. Закрытый ключ никому. Изменился отпечаток сервера — стоп.</li>
         <li><b>tmux руками</b> — <code>tmux new -s имя</code> создать, Ctrl+B, d свернуть, <code>tmux ls</code> список, <code>tmux attach -t имя</code> вернуться, <code>exit</code> в последнем окне закрывает сессию насовсем.</li>
+        <li><b>Окна tmux</b> — скрыть значит перенести на склад (<code>move-window -t sklad:</code>): окно пропало из полосы, но работает. Закрыть (<code>exit</code>, Ctrl+B &amp;) значит убить навсегда. Дерево всех окон — Ctrl+B, w. Постоянные ID окна <code>@N</code> и панели <code>%N</code> не меняются при переносе.</li>
         <li><b>Сервер с iPhone</b> — приложение-терминал (Termius), адрес, порт, логин на сервере, ключ. Админу только открытую часть. Подключились — сразу tmux.</li>
         <li><b>Привычки</b> — посмотри, где ты. Проверь шаблон. Копия перед правкой. Долгое в tmux. Не уверен — Ctrl+C.</li>
       </ul>
