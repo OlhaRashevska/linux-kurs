@@ -209,6 +209,20 @@ table.matrix { border-collapse: collapse; font-size: .93rem; min-width: 420px; }
 .sorter { display: flex; flex-direction: column; gap: 8px; }
 .sort-item { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--bg); display: flex; flex-direction: column; gap: 8px; }
 .ex ol { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 4px; }
+.transfer { font-size: .85rem; }
+.transfer summary { cursor: pointer; color: var(--accent); }
+.transfer[open] { display: flex; flex-direction: column; gap: 8px; }
+.transfer textarea { font-size: .72rem; width: 100%; resize: vertical; }
+.cheat td:nth-child(2) { white-space: normal; }
+.cheat td { text-align: left !important; }
+.tmsim { background: var(--term-bg); color: var(--term-fg); font-family: var(--f-mono); font-size: .85rem; border-radius: 10px; overflow: hidden; }
+.tm-body { padding: 12px; display: flex; flex-direction: column; gap: 4px; min-height: 120px; }
+.tm-body .dim { color: var(--term-dim); }
+.tm-panes { display: grid; gap: 2px; background: var(--tmux); min-height: 110px; }
+.tm-pane { background: var(--term-bg); padding: 10px; }
+.tm-scroll { background: #F0B35A; color: #1a1a1a; padding: 3px 10px; font-size: .78rem; }
+.phform { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.phform label { display: flex; flex-direction: column; gap: 4px; font-size: .88rem; color: var(--muted); }
 .examples { display: grid; gap: 10px; }
 .ex { border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: var(--surface); display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .ex .sit { font-weight: 600; }
@@ -279,7 +293,7 @@ table.matrix { border-collapse: collapse; font-size: .93rem; min-width: 420px; }
 <span class="eyebrow">Версия для чтения на телефоне</span>
 <h1>Linux для пользователя</h1>
 <p class="lab-hint">Все уроки на одной странице. Нажмите на вариант ответа, чтобы увидеть, верный ли он, и объяснение. Модели с кнопками, баллы, замки и экзамен есть только в полной версии на компьютере.</p>
-<ol><li><a href="#start"><span class="n">0</span> Начало</a></li><li><a href="#arch"><span class="n">1</span> Устройство</a></li><li><a href="#users"><span class="n">2</span> Пользователи</a></li><li><a href="#groups"><span class="n">3</span> Группы</a></li><li><a href="#perms"><span class="n">4</span> Права</a></li><li><a href="#procs"><span class="n">5</span> Процессы</a></li><li><a href="#jobs"><span class="n">6</span> Фон</a></li><li><a href="#tmux"><span class="n">7</span> tmux</a></li><li><a href="#sandbox"><span class="n">8</span> Песочница</a></li><li><a href="#paths"><span class="n">9</span> Где я: пути</a></li><li><a href="#cmd"><span class="n">10</span> Команда</a></li><li><a href="#files"><span class="n">11</span> Файлы</a></li><li><a href="#edit"><span class="n">12</span> Читать и править</a></li><li><a href="#errors"><span class="n">13</span> Ошибки</a></li><li><a href="#sudo"><span class="n">14</span> sudo и SSH</a></li><li><a href="#habits"><span class="n">15</span> Привычки</a></li><li><a href="#final"><span class="n">16</span> Итог</a></li></ol>
+<ol><li><a href="#start"><span class="n">0</span> Начало</a></li><li><a href="#arch"><span class="n">1</span> Устройство</a></li><li><a href="#users"><span class="n">2</span> Пользователи</a></li><li><a href="#groups"><span class="n">3</span> Группы</a></li><li><a href="#perms"><span class="n">4</span> Права</a></li><li><a href="#procs"><span class="n">5</span> Процессы</a></li><li><a href="#jobs"><span class="n">6</span> Фон</a></li><li><a href="#tmux"><span class="n">7</span> tmux</a></li><li><a href="#sandbox"><span class="n">8</span> Песочница</a></li><li><a href="#paths"><span class="n">9</span> Где я: пути</a></li><li><a href="#cmd"><span class="n">10</span> Команда</a></li><li><a href="#files"><span class="n">11</span> Файлы</a></li><li><a href="#edit"><span class="n">12</span> Читать и править</a></li><li><a href="#errors"><span class="n">13</span> Ошибки</a></li><li><a href="#sudo"><span class="n">14</span> sudo и SSH</a></li><li><a href="#phone"><span class="n">15</span> Сервер с iPhone</a></li><li><a href="#habits"><span class="n">16</span> Привычки</a></li><li><a href="#final"><span class="n">17</span> Итог</a></li></ol>
 </nav>
 
   <article class="lesson" id="start">
@@ -874,6 +888,70 @@ anna@server:~$ _</div><p><b>Как читать.</b> Задача номер 2, 
     </div>
     
     
+    <h3>tmux руками: команды на каждый день</h3>
+    <div class="prose">
+      <p>Все действия внутри tmux начинаются с <b>префикса</b>: нажать <b>Ctrl+B</b>, отпустить, потом нажать клавишу действия. Не одновременно, а по очереди. Команды вне tmux набираются в обычной оболочке.</p>
+    </div>
+    <div class="tablewrap"><table class="matrix cheat">
+      <thead><tr><th>Что нужно</th><th>Что набрать или нажать</th><th>Где</th></tr></thead>
+      <tbody>
+        <tr><td>Открыть tmux с новой сессией</td><td><code>tmux</code></td><td>в оболочке</td></tr>
+        <tr><td>Создать сессию с понятным именем</td><td><code>tmux new -s rabota</code></td><td>в оболочке</td></tr>
+        <tr><td><b>Свернуть: выйти, а всё оставить работать</b></td><td><b>Ctrl+B, потом d</b> (detach)</td><td>в tmux</td></tr>
+        <tr><td>Посмотреть, какие сессии живут</td><td><code>tmux ls</code></td><td>в оболочке</td></tr>
+        <tr><td><b>Вернуться в сессию</b> (весь контекст на месте)</td><td><code>tmux attach -t rabota</code> или коротко <code>tmux a</code> (в последнюю)</td><td>в оболочке</td></tr>
+        <tr><td>Новое окно (вкладка)</td><td>Ctrl+B, потом c</td><td>в tmux</td></tr>
+        <tr><td>Следующее или предыдущее окно</td><td>Ctrl+B, потом n / p</td><td>в tmux</td></tr>
+        <tr><td>Окно по номеру</td><td>Ctrl+B, потом 0…9</td><td>в tmux</td></tr>
+        <tr><td>Разрезать окно слева-направо / сверху-вниз</td><td>Ctrl+B, потом % / "</td><td>в tmux</td></tr>
+        <tr><td>Перейти в другую панель</td><td>Ctrl+B, потом стрелка</td><td>в tmux</td></tr>
+        <tr><td>Прокрутить вверх, почитать старый вывод</td><td>Ctrl+B, потом [ ; листать стрелками; выйти — q</td><td>в tmux</td></tr>
+        <tr><td>Переименовать окно</td><td>Ctrl+B, потом ,</td><td>в tmux</td></tr>
+        <tr><td>Закрыть панель или окно</td><td><code>exit</code> (закрывается оболочка в ней)</td><td>в tmux</td></tr>
+        <tr><td>Совсем закрыть сессию со всем внутри</td><td><code>tmux kill-session -t rabota</code></td><td>в оболочке</td></tr>
+      </tbody>
+    </table></div>
+    <div class="trap"><b>Свернуть и закрыть — разные вещи.</b> Ctrl+B, d только отключает вас, а программы внутри работают дальше. <code>exit</code> в последнем окне и <code>kill-session</code> завершают оболочку, и всё, что в ней было запущено, получает сигнал обрыва. Хотите вернуться к работе потом — сворачивайте, а не закрывайте.</div>
+    
+    <section class="quiz">
+      <h3>Проверь себя: команды tmux</h3>
+      <div class="q" data-q>
+        <p class="qt">Вы в tmux, идёт долгая задача, а вам нужно уйти. Как выйти, чтобы всё продолжило работать?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Набрать exit</summary><p><b class="v-bad">✗ Неверно.</b> exit закрывает оболочку, и задача внутри получит сигнал обрыва.</p></details>
+          <details class="ropt"><summary>Ctrl+B, потом d</summary><p><b class="v-ok">✓ Верно.</b> Верно. Это detach: вы отключились, а сессия и задача живут на сервере.</p></details>
+          <details class="ropt"><summary>Ctrl+C</summary><p><b class="v-bad">✗ Неверно.</b> Ctrl+C прервёт саму задачу.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">На следующий день вы подключились к серверу. Как вернуться в сессию «rabota»?</p>
+        <div class="opts">
+          <details class="ropt"><summary>tmux new -s rabota</summary><p><b class="v-bad">✗ Неверно.</b> Это создаст новую сессию, а старая останется, где была. Будет ошибка duplicate session.</p></details>
+          <details class="ropt"><summary>tmux attach -t rabota</summary><p><b class="v-ok">✓ Верно.</b> Верно. Вы окажетесь там же, где были: окна, панели, вывод — всё на месте.</p></details>
+          <details class="ropt"><summary>tmux</summary><p><b class="v-bad">✗ Неверно.</b> Просто tmux создаст ещё одну, новую сессию.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Вы не помните, как называлась сессия. Что набрать?</p>
+        <div class="opts">
+          <details class="ropt"><summary>tmux ls</summary><p><b class="v-ok">✓ Верно.</b> Верно. tmux ls покажет все живые сессии с именами и числом окон.</p></details>
+          <details class="ropt"><summary>ps</summary><p><b class="v-bad">✗ Неверно.</b> ps покажет процессы, а имена сессий удобнее смотреть в tmux ls.</p></details>
+          <details class="ropt"><summary>pwd</summary><p><b class="v-bad">✗ Неверно.</b> pwd покажет текущую папку.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Вывод программы убежал вверх, колёсико не помогает. Как прокрутить в tmux?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Ctrl+B, потом %</summary><p><b class="v-bad">✗ Неверно.</b> Это разрежет окно на панели.</p></details>
+          <details class="ropt"><summary>Ctrl+B, потом [ ; выход — q</summary><p><b class="v-ok">✓ Верно.</b> Верно. Это режим прокрутки, листать стрелками или PgUp, выход — q.</p></details>
+          <details class="ropt"><summary>Ctrl+B, потом d</summary><p><b class="v-bad">✗ Неверно.</b> Ctrl+B, d отключит вас от сессии.</p></details>
+        </div>
+        
+      </div>
+    </section>
     <div class="big-idea"><b>Главное.</b> Окно на ноутбуке больше не хозяин работы. Хозяин — сервер tmux. Поэтому, если работа долгая или связь ненадёжная, её начинают внутри tmux заранее, а не после обрыва.</div>
     <h3>Примеры из жизни</h3>
     <div class="examples">
@@ -1547,9 +1625,110 @@ Are you sure you want to continue connecting (yes/no)?</div><p><b>Что про�
   </article>
 <p class="totop"><a href="#toc">↑ к оглавлению</a></p>
 
+  <article class="lesson" id="phone">
+    <header class="lesson-head">
+      <span class="eyebrow">Урок 15 · Сервер с iPhone</span>
+      <h2>Терминал в кармане</h2>
+      <p class="lead">К серверу можно подключиться прямо с телефона. Нужно приложение-терминал, адрес сервера, ваш логин и ключ. И обязательно tmux: телефон рвёт связь гораздо чаще компьютера.</p>
+    </header>
+    <div class="prose">
+      <h3>Что поставить</h3>
+      <p>На iPhone нет встроенного терминала, нужен SSH-клиент из App Store. Самые известные:</p>
+      <ul>
+        <li><b>Termius</b> — самый простой для начала. Базовое подключение по SSH бесплатное, умеет создавать ключи, есть строка дополнительных клавиш (Ctrl, Esc, Tab, стрелки).</li>
+        <li><b>Blink Shell</b> — платный, для тех, кто много работает с телефона или iPad. Умеет <b>mosh</b>: соединение, которое переживает смену сети (Wi-Fi → мобильный интернет) и засыпание телефона.</li>
+        <li><b>a-Shell</b> — бесплатный, больше для экспериментов, чем для работы.</li>
+      </ul>
+      <p>Устройство у всех одинаковое: это программа <code>ssh</code> из урока 14, только с кнопками.</p>
+      <h3>Что нужно знать для подключения</h3>
+      <ul>
+        <li><b>Адрес сервера</b> — имя (например, <code>server.example.com</code>) или IP-адрес. Его даёт админ.</li>
+        <li><b>Порт</b> — обычно 22. Если админ сказал другой, укажите его.</li>
+        <li><b>Имя пользователя на сервере</b> — ваш логин там, не имя телефона.</li>
+        <li><b>Ключ или пароль.</b> Лучше ключ: создайте его прямо в приложении. <b>Открытую</b> часть отправьте админу, он добавит её на сервер. <b>Закрытая</b> остаётся в телефоне и никуда не отправляется.</li>
+      </ul>
+      <h3>Особенности телефона</h3>
+      <ul>
+        <li><b>iPhone усыпляет приложения в фоне.</b> Переключились в мессенджер на пару минут — соединение может оборваться. Без tmux всё, что шло, получит сигнал обрыва. Поэтому правило для телефона: подключились — сразу <code>tmux attach</code> или <code>tmux new -s phone</code>.</li>
+        <li><b>Клавиатура без Ctrl и Esc.</b> Приложения добавляют над клавиатурой строку со спецклавишами. Ctrl+B для tmux нажимается так: Ctrl в этой строке, потом b на клавиатуре.</li>
+        <li><b>Смена сети</b> (ушли с Wi-Fi) тоже рвёт обычный SSH. Здесь помогают tmux и mosh.</li>
+        <li><b>Маленький экран.</b> Панели tmux на телефоне неудобны. Лучше окна (Ctrl+B, c) и переключение между ними.</li>
+        <li><b>Безопасность.</b> На телефоне должна стоять блокировка экрана: в нём лежит ваш закрытый ключ.</li>
+      </ul>
+    </div>
+    
+    <h3>Примеры из жизни</h3>
+    <div class="examples">
+      <div class="ex"><div class="term">anna@server.example.com: Permission denied (publickey).</div><p><b>Что происходит.</b> Сервер пускает только по ключу, а вашего открытого ключа у него нет. Либо админ его ещё не добавил, либо в приложении выбран не тот ключ или не тот пользователь.</p></div>
+      <div class="ex"><div class="term">Connection closed by remote host
+Disconnected</div><p><b>Что происходит.</b> Вы свернули приложение, и iPhone его усыпил, или сменилась сеть. Переподключитесь и наберите <code>tmux attach</code>. Если работа шла в tmux, она на месте.</p></div>
+      <div class="ex"><div class="term">ssh: connect to host sever.example.com port 22: Could not resolve hostname</div><p><b>Что происходит.</b> Такого имени нет: опечатка в адресе (sever вместо server).</p></div>
+    </div>
+    <section class="quiz">
+      <h3>Проверь себя на примерах</h3>
+      <div class="q" data-q>
+        <p class="qt">Что первым делом набрать после подключения с телефона?</p>
+        <div class="opts">
+          <details class="ropt"><summary>sudo su</summary><p><b class="v-bad">✗ Неверно.</b> sudo здесь не нужен, нужна защита от обрыва.</p></details>
+          <details class="ropt"><summary>tmux attach или tmux new -s phone</summary><p><b class="v-ok">✓ Верно.</b> Верно. Телефон рвёт связь часто, а tmux сохранит работу.</p></details>
+          <details class="ropt"><summary>ls</summary><p><b class="v-bad">✗ Неверно.</b> Это полезно, но сначала нужен tmux.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Вы создали ключ в приложении на телефоне. Что отправить админу?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Открытую часть ключа</summary><p><b class="v-ok">✓ Верно.</b> Верно. Открытая часть — это «замок», её можно отдавать.</p></details>
+          <details class="ropt"><summary>Закрытую часть ключа</summary><p><b class="v-bad">✗ Неверно.</b> Закрытая часть никогда не покидает телефон.</p></details>
+          <details class="ropt"><summary>Пароль от телефона</summary><p><b class="v-bad">✗ Неверно.</b> Пароль от телефона серверу не нужен и никому не отправляется.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Ошибка <code>Permission denied (publickey)</code>. Что вероятнее всего?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Нет интернета</summary><p><b class="v-bad">✗ Неверно.</b> При проблемах с сетью была бы ошибка про соединение или timeout.</p></details>
+          <details class="ropt"><summary>Сервер не нашёл ваш открытый ключ или имя пользователя неверное</summary><p><b class="v-ok">✓ Верно.</b> Верно. Проверьте имя пользователя, выбранный ключ и спросите админа, добавлен ли открытый ключ.</p></details>
+          <details class="ropt"><summary>Сервер выключен</summary><p><b class="v-bad">✗ Неверно.</b> Сервер ответил, значит он работает.</p></details>
+        </div>
+        
+      </div>
+    </section>
+    <section class="quiz"><h3>Итоговые вопросы урока</h3>
+      <div class="q" data-q>
+        <p class="qt">Почему с телефона работа без tmux особенно рискованна?</p>
+        <div class="opts">
+          <details class="ropt"><summary>iPhone усыпляет приложения в фоне и меняет сети, связь рвётся часто</summary><p><b class="v-ok">✓ Верно.</b> Верно. Каждый обрыв убивает всё, что было запущено вне tmux.</p></details>
+          <details class="ropt"><summary>С телефона у вас меньше прав</summary><p><b class="v-bad">✗ Неверно.</b> Права одинаковые, с какого бы устройства вы ни зашли.</p></details>
+          <details class="ropt"><summary>С телефона команды выполняются медленнее</summary><p><b class="v-bad">✗ Неверно.</b> Скорость тут ни при чём.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Как на телефоне нажать префикс tmux Ctrl+B?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Ctrl в строке спецклавиш приложения, потом b</summary><p><b class="v-ok">✓ Верно.</b> Верно. В строке дополнительных клавиш есть Ctrl.</p></details>
+          <details class="ropt"><summary>Зажать b подольше</summary><p><b class="v-bad">✗ Неверно.</b> На экранной клавиатуре iPhone нет Ctrl, его даёт приложение.</p></details>
+          <details class="ropt"><summary>Никак, tmux на телефоне не работает</summary><p><b class="v-bad">✗ Неверно.</b> На телефоне tmux работает так же.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Что нужно, чтобы подключиться к серверу из приложения?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Apple ID и пароль от него</summary><p><b class="v-bad">✗ Неверно.</b> Apple ID серверу не нужен.</p></details>
+          <details class="ropt"><summary>Адрес сервера, порт, имя пользователя на сервере и ключ или пароль</summary><p><b class="v-ok">✓ Верно.</b> Верно. Это всё то же, что для ssh с компьютера.</p></details>
+          <details class="ropt"><summary>Только номер телефона</summary><p><b class="v-bad">✗ Неверно.</b> Номер телефона серверу не нужен.</p></details>
+        </div>
+        
+      </div>
+    </section>
+  </article>
+<p class="totop"><a href="#toc">↑ к оглавлению</a></p>
+
   <article class="lesson" id="habits">
     <header class="lesson-head">
-      <span class="eyebrow">Урок 15 · Привычки</span>
+      <span class="eyebrow">Урок 16 · Привычки</span>
       <h2>Десять привычек, чтобы ничего не сломать</h2>
       <p class="lead">Почти все серьёзные поломки на серверах — не сложные ошибки, а пропущенная простая проверка.</p>
     </header>
@@ -1648,6 +1827,8 @@ anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначал
         <li><b>Чтение и правка</b> — less и tail -f для чтения, nano для правки. Выход из vim: Esc, <code>:q!</code> или <code>:wq</code>. Копия перед правкой, служба перечитывает настройки при перезапуске.</li>
         <li><b>Ошибки</b> — программа: что: причина. Начинать с первой. Permission denied — права, No such file — путь, command not found — имя программы.</li>
         <li><b>sudo и SSH</b> — sudo на одну команду и с вашим паролем. Файлы от sudo принадлежат root. Закрытый ключ никому. Изменился отпечаток сервера — стоп.</li>
+        <li><b>tmux руками</b> — <code>tmux new -s имя</code> создать, Ctrl+B, d свернуть, <code>tmux ls</code> список, <code>tmux attach -t имя</code> вернуться, <code>exit</code> в последнем окне закрывает сессию насовсем.</li>
+        <li><b>Сервер с iPhone</b> — приложение-терминал (Termius), адрес, порт, логин на сервере, ключ. Админу только открытую часть. Подключились — сразу tmux.</li>
         <li><b>Привычки</b> — посмотри, где ты. Проверь шаблон. Копия перед правкой. Долгое в tmux. Не уверен — Ctrl+C.</li>
       </ul>
     </div>

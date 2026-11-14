@@ -213,6 +213,20 @@ table.matrix { border-collapse: collapse; font-size: .93rem; min-width: 420px; }
 .sorter { display: flex; flex-direction: column; gap: 8px; }
 .sort-item { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--bg); display: flex; flex-direction: column; gap: 8px; }
 .ex ol { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 4px; }
+.transfer { font-size: .85rem; }
+.transfer summary { cursor: pointer; color: var(--accent); }
+.transfer[open] { display: flex; flex-direction: column; gap: 8px; }
+.transfer textarea { font-size: .72rem; width: 100%; resize: vertical; }
+.cheat td:nth-child(2) { white-space: normal; }
+.cheat td { text-align: left !important; }
+.tmsim { background: var(--term-bg); color: var(--term-fg); font-family: var(--f-mono); font-size: .85rem; border-radius: 10px; overflow: hidden; }
+.tm-body { padding: 12px; display: flex; flex-direction: column; gap: 4px; min-height: 120px; }
+.tm-body .dim { color: var(--term-dim); }
+.tm-panes { display: grid; gap: 2px; background: var(--tmux); min-height: 110px; }
+.tm-pane { background: var(--term-bg); padding: 10px; }
+.tm-scroll { background: #F0B35A; color: #1a1a1a; padding: 3px 10px; font-size: .78rem; }
+.phform { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.phform label { display: flex; flex-direction: column; gap: 4px; font-size: .88rem; color: var(--muted); }
 .examples { display: grid; gap: 10px; }
 .ex { border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: var(--surface); display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .ex .sit { font-weight: 600; }
@@ -266,13 +280,24 @@ table.matrix { border-collapse: collapse; font-size: .93rem; min-width: 420px; }
 <div class="app">
   <aside class="rail">
     <div class="brand">
-      <span class="kicker">курс · 15 уроков · экзамен</span>
+      <span class="kicker">курс · 16 уроков · экзамен</span>
       <h1>Linux для пользователя</h1>
     </div>
     <ul class="nav" id="nav"></ul>
     <div class="progress-box">
       <span id="progress-text">Пройдено 0 из 7</span>
       <div class="bar"><i id="progress-bar"></i></div>
+      <p class="warn-line" id="store-warn" hidden></p>
+      <details class="transfer" id="transfer">
+        <summary>Сохранить или перенести прогресс</summary>
+        <p class="lab-hint">Код ниже — весь ваш прогресс и баллы. Скопируйте его и пришлите себе в чат. Чтобы восстановить в другом браузере, вставьте код в поле и нажмите «Восстановить».</p>
+        <textarea id="tr-code" class="inp" rows="3" aria-label="код прогресса"></textarea>
+        <div class="row">
+          <button class="btn" id="tr-copy">Копировать код</button>
+          <button class="btn" id="tr-load">Восстановить из кода</button>
+        </div>
+        <p class="lab-hint" id="tr-msg"></p>
+      </details>
     </div>
   </aside>
   <main id="main"></main>
@@ -983,6 +1008,81 @@ anna@server:~$ _</div><p><b>Как читать.</b> Задача номер 2, 
       <div class="tmuxwin">
         <div class="panes" id="tm-panes"></div>
         <div class="status" id="tm-status"></div>
+      </div>
+    </section>
+    <h3>tmux руками: команды на каждый день</h3>
+    <div class="prose">
+      <p>Все действия внутри tmux начинаются с <b>префикса</b>: нажать <b>Ctrl+B</b>, отпустить, потом нажать клавишу действия. Не одновременно, а по очереди. Команды вне tmux набираются в обычной оболочке.</p>
+    </div>
+    <div class="tablewrap"><table class="matrix cheat">
+      <thead><tr><th>Что нужно</th><th>Что набрать или нажать</th><th>Где</th></tr></thead>
+      <tbody>
+        <tr><td>Открыть tmux с новой сессией</td><td><code>tmux</code></td><td>в оболочке</td></tr>
+        <tr><td>Создать сессию с понятным именем</td><td><code>tmux new -s rabota</code></td><td>в оболочке</td></tr>
+        <tr><td><b>Свернуть: выйти, а всё оставить работать</b></td><td><b>Ctrl+B, потом d</b> (detach)</td><td>в tmux</td></tr>
+        <tr><td>Посмотреть, какие сессии живут</td><td><code>tmux ls</code></td><td>в оболочке</td></tr>
+        <tr><td><b>Вернуться в сессию</b> (весь контекст на месте)</td><td><code>tmux attach -t rabota</code> или коротко <code>tmux a</code> (в последнюю)</td><td>в оболочке</td></tr>
+        <tr><td>Новое окно (вкладка)</td><td>Ctrl+B, потом c</td><td>в tmux</td></tr>
+        <tr><td>Следующее или предыдущее окно</td><td>Ctrl+B, потом n / p</td><td>в tmux</td></tr>
+        <tr><td>Окно по номеру</td><td>Ctrl+B, потом 0…9</td><td>в tmux</td></tr>
+        <tr><td>Разрезать окно слева-направо / сверху-вниз</td><td>Ctrl+B, потом % / "</td><td>в tmux</td></tr>
+        <tr><td>Перейти в другую панель</td><td>Ctrl+B, потом стрелка</td><td>в tmux</td></tr>
+        <tr><td>Прокрутить вверх, почитать старый вывод</td><td>Ctrl+B, потом [ ; листать стрелками; выйти — q</td><td>в tmux</td></tr>
+        <tr><td>Переименовать окно</td><td>Ctrl+B, потом ,</td><td>в tmux</td></tr>
+        <tr><td>Закрыть панель или окно</td><td><code>exit</code> (закрывается оболочка в ней)</td><td>в tmux</td></tr>
+        <tr><td>Совсем закрыть сессию со всем внутри</td><td><code>tmux kill-session -t rabota</code></td><td>в оболочке</td></tr>
+      </tbody>
+    </table></div>
+    <div class="trap"><b>Свернуть и закрыть — разные вещи.</b> Ctrl+B, d только отключает вас, а программы внутри работают дальше. <code>exit</code> в последнем окне и <code>kill-session</code> завершают оболочку, и всё, что в ней было запущено, получает сигнал обрыва. Хотите вернуться к работе потом — сворачивайте, а не закрывайте.</div>
+    <section class="lab">
+      <div class="lab-title"><span class="tag">тренажёр</span><h3>tmux по-настоящему</h3></div>
+      <p class="lab-hint">Нажимайте команды в любом порядке, как на настоящем сервере. Попробуйте: создать сессию «rabota», запустить задачу, свернуть, посмотреть список, вернуться и убедиться, что задача шла без вас.</p>
+      <div class="tmsim" id="tc-screen"></div>
+      <div class="lab-hint">В оболочке:</div>
+      <div class="row" id="tc-shell"></div>
+      <div class="lab-hint">Внутри tmux (после Ctrl+B):</div>
+      <div class="row" id="tc-pref"></div>
+      <div class="lab-hint">Внутри tmux, обычные команды:</div>
+      <div class="row" id="tc-in"></div>
+      <div class="term" id="tc-log"></div>
+    </section>
+    <section class="quiz">
+      <h3>Проверь себя: команды tmux</h3>
+      <div class="q" data-q>
+        <p class="qt">Вы в tmux, идёт долгая задача, а вам нужно уйти. Как выйти, чтобы всё продолжило работать?</p>
+        <div class="opts">
+          <button class="opt" data-why="exit закрывает оболочку, и задача внутри получит сигнал обрыва.">Набрать exit</button>
+          <button class="opt" data-ok data-why="Верно. Это detach: вы отключились, а сессия и задача живут на сервере.">Ctrl+B, потом d</button>
+          <button class="opt" data-why="Ctrl+C прервёт саму задачу.">Ctrl+C</button>
+        </div>
+        <p class="why" hidden></p>
+      </div>
+      <div class="q" data-q>
+        <p class="qt">На следующий день вы подключились к серверу. Как вернуться в сессию «rabota»?</p>
+        <div class="opts">
+          <button class="opt" data-why="Это создаст новую сессию, а старая останется, где была. Будет ошибка duplicate session.">tmux new -s rabota</button>
+          <button class="opt" data-ok data-why="Верно. Вы окажетесь там же, где были: окна, панели, вывод — всё на месте.">tmux attach -t rabota</button>
+          <button class="opt" data-why="Просто tmux создаст ещё одну, новую сессию.">tmux</button>
+        </div>
+        <p class="why" hidden></p>
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Вы не помните, как называлась сессия. Что набрать?</p>
+        <div class="opts">
+          <button class="opt" data-ok data-why="Верно. tmux ls покажет все живые сессии с именами и числом окон.">tmux ls</button>
+          <button class="opt" data-why="ps покажет процессы, а имена сессий удобнее смотреть в tmux ls.">ps</button>
+          <button class="opt" data-why="pwd покажет текущую папку.">pwd</button>
+        </div>
+        <p class="why" hidden></p>
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Вывод программы убежал вверх, колёсико не помогает. Как прокрутить в tmux?</p>
+        <div class="opts">
+          <button class="opt" data-why="Это разрежет окно на панели.">Ctrl+B, потом %</button>
+          <button class="opt" data-ok data-why="Верно. Это режим прокрутки, листать стрелками или PgUp, выход — q.">Ctrl+B, потом [ ; выход — q</button>
+          <button class="opt" data-why="Ctrl+B, d отключит вас от сессии.">Ctrl+B, потом d</button>
+        </div>
+        <p class="why" hidden></p>
       </div>
     </section>
     <div class="big-idea"><b>Главное.</b> Окно на ноутбуке больше не хозяин работы. Хозяин — сервер tmux. Поэтому, если работа долгая или связь ненадёжная, её начинают внутри tmux заранее, а не после обрыва.</div>
@@ -1724,10 +1824,130 @@ Are you sure you want to continue connecting (yes/no)?</div><p><b>Что про�
   </article>
 </template>
 
+<template id="t-phone">
+  <article class="lesson">
+    <header class="lesson-head">
+      <span class="eyebrow">Урок 15 · Сервер с iPhone</span>
+      <h2>Терминал в кармане</h2>
+      <p class="lead">К серверу можно подключиться прямо с телефона. Нужно приложение-терминал, адрес сервера, ваш логин и ключ. И обязательно tmux: телефон рвёт связь гораздо чаще компьютера.</p>
+    </header>
+    <div class="prose">
+      <h3>Что поставить</h3>
+      <p>На iPhone нет встроенного терминала, нужен SSH-клиент из App Store. Самые известные:</p>
+      <ul>
+        <li><b>Termius</b> — самый простой для начала. Базовое подключение по SSH бесплатное, умеет создавать ключи, есть строка дополнительных клавиш (Ctrl, Esc, Tab, стрелки).</li>
+        <li><b>Blink Shell</b> — платный, для тех, кто много работает с телефона или iPad. Умеет <b>mosh</b>: соединение, которое переживает смену сети (Wi-Fi → мобильный интернет) и засыпание телефона.</li>
+        <li><b>a-Shell</b> — бесплатный, больше для экспериментов, чем для работы.</li>
+      </ul>
+      <p>Устройство у всех одинаковое: это программа <code>ssh</code> из урока 14, только с кнопками.</p>
+      <h3>Что нужно знать для подключения</h3>
+      <ul>
+        <li><b>Адрес сервера</b> — имя (например, <code>server.example.com</code>) или IP-адрес. Его даёт админ.</li>
+        <li><b>Порт</b> — обычно 22. Если админ сказал другой, укажите его.</li>
+        <li><b>Имя пользователя на сервере</b> — ваш логин там, не имя телефона.</li>
+        <li><b>Ключ или пароль.</b> Лучше ключ: создайте его прямо в приложении. <b>Открытую</b> часть отправьте админу, он добавит её на сервер. <b>Закрытая</b> остаётся в телефоне и никуда не отправляется.</li>
+      </ul>
+      <h3>Особенности телефона</h3>
+      <ul>
+        <li><b>iPhone усыпляет приложения в фоне.</b> Переключились в мессенджер на пару минут — соединение может оборваться. Без tmux всё, что шло, получит сигнал обрыва. Поэтому правило для телефона: подключились — сразу <code>tmux attach</code> или <code>tmux new -s phone</code>.</li>
+        <li><b>Клавиатура без Ctrl и Esc.</b> Приложения добавляют над клавиатурой строку со спецклавишами. Ctrl+B для tmux нажимается так: Ctrl в этой строке, потом b на клавиатуре.</li>
+        <li><b>Смена сети</b> (ушли с Wi-Fi) тоже рвёт обычный SSH. Здесь помогают tmux и mosh.</li>
+        <li><b>Маленький экран.</b> Панели tmux на телефоне неудобны. Лучше окна (Ctrl+B, c) и переключение между ними.</li>
+        <li><b>Безопасность.</b> На телефоне должна стоять блокировка экрана: в нём лежит ваш закрытый ключ.</li>
+      </ul>
+    </div>
+    <section class="lab">
+      <div class="lab-title"><span class="tag">тренажёр</span><h3>Подключение с телефона</h3></div>
+      <p class="lab-hint">Заполните подключение, как в приложении, и попробуйте разные ситуации: ошибку в адресе, ключ, который админ ещё не добавил, сворачивание приложения с tmux и без.</p>
+      <div class="phform">
+        <label>Адрес <select id="ph-host" class="inp"><option value="ok">server.example.com</option><option value="typo">sever.example.com (опечатка)</option></select></label>
+        <label>Порт <select id="ph-port" class="inp"><option value="22">22</option><option value="2222">2222 (а сервер слушает 22)</option></select></label>
+        <label>Пользователь <select id="ph-user" class="inp"><option value="anna">anna</option><option value="iphone">iphone (имя телефона)</option></select></label>
+        <label>Вход <select id="ph-auth" class="inp"><option value="keyok">ключ, открытая часть у админа</option><option value="keyno">ключ, админу ещё не отправлен</option><option value="pass">пароль</option></select></label>
+      </div>
+      <div class="row">
+        <button class="btn primary" id="ph-go">Подключиться</button>
+        <button class="btn" id="ph-tmux">Набрать tmux new -s phone</button>
+        <button class="btn" id="ph-task">Запустить долгую задачу</button>
+        <button class="btn warn" id="ph-bg">Свернуть приложение на 10 минут</button>
+        <button class="btn" id="ph-back">Вернуться и переподключиться</button>
+        <button class="btn" id="ph-att">Набрать tmux attach -t phone</button>
+      </div>
+      <div class="term" id="ph-log"></div>
+    </section>
+    <h3>Примеры из жизни</h3>
+    <div class="examples">
+      <div class="ex"><div class="term">anna@server.example.com: Permission denied (publickey).</div><p><b>Что происходит.</b> Сервер пускает только по ключу, а вашего открытого ключа у него нет. Либо админ его ещё не добавил, либо в приложении выбран не тот ключ или не тот пользователь.</p></div>
+      <div class="ex"><div class="term">Connection closed by remote host
+Disconnected</div><p><b>Что происходит.</b> Вы свернули приложение, и iPhone его усыпил, или сменилась сеть. Переподключитесь и наберите <code>tmux attach</code>. Если работа шла в tmux, она на месте.</p></div>
+      <div class="ex"><div class="term">ssh: connect to host sever.example.com port 22: Could not resolve hostname</div><p><b>Что происходит.</b> Такого имени нет: опечатка в адресе (sever вместо server).</p></div>
+    </div>
+    <section class="quiz">
+      <h3>Проверь себя на примерах</h3>
+      <div class="q" data-q>
+        <p class="qt">Что первым делом набрать после подключения с телефона?</p>
+        <div class="opts">
+          <button class="opt" data-why="sudo здесь не нужен, нужна защита от обрыва.">sudo su</button>
+          <button class="opt" data-ok data-why="Верно. Телефон рвёт связь часто, а tmux сохранит работу.">tmux attach или tmux new -s phone</button>
+          <button class="opt" data-why="Это полезно, но сначала нужен tmux.">ls</button>
+        </div>
+        <p class="why" hidden></p>
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Вы создали ключ в приложении на телефоне. Что отправить админу?</p>
+        <div class="opts">
+          <button class="opt" data-ok data-why="Верно. Открытая часть — это «замок», её можно отдавать.">Открытую часть ключа</button>
+          <button class="opt" data-why="Закрытая часть никогда не покидает телефон.">Закрытую часть ключа</button>
+          <button class="opt" data-why="Пароль от телефона серверу не нужен и никому не отправляется.">Пароль от телефона</button>
+        </div>
+        <p class="why" hidden></p>
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Ошибка <code>Permission denied (publickey)</code>. Что вероятнее всего?</p>
+        <div class="opts">
+          <button class="opt" data-why="При проблемах с сетью была бы ошибка про соединение или timeout.">Нет интернета</button>
+          <button class="opt" data-ok data-why="Верно. Проверьте имя пользователя, выбранный ключ и спросите админа, добавлен ли открытый ключ.">Сервер не нашёл ваш открытый ключ или имя пользователя неверное</button>
+          <button class="opt" data-why="Сервер ответил, значит он работает.">Сервер выключен</button>
+        </div>
+        <p class="why" hidden></p>
+      </div>
+    </section>
+    <section class="quiz" data-lesson="phone">
+      <div class="q" data-q>
+        <p class="qt">Почему с телефона работа без tmux особенно рискованна?</p>
+        <div class="opts">
+          <button class="opt" data-ok data-why="Верно. Каждый обрыв убивает всё, что было запущено вне tmux.">iPhone усыпляет приложения в фоне и меняет сети, связь рвётся часто</button>
+          <button class="opt" data-why="Права одинаковые, с какого бы устройства вы ни зашли.">С телефона у вас меньше прав</button>
+          <button class="opt" data-why="Скорость тут ни при чём.">С телефона команды выполняются медленнее</button>
+        </div>
+        <p class="why" hidden></p>
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Как на телефоне нажать префикс tmux Ctrl+B?</p>
+        <div class="opts">
+          <button class="opt" data-ok data-why="Верно. В строке дополнительных клавиш есть Ctrl.">Ctrl в строке спецклавиш приложения, потом b</button>
+          <button class="opt" data-why="На экранной клавиатуре iPhone нет Ctrl, его даёт приложение.">Зажать b подольше</button>
+          <button class="opt" data-why="На телефоне tmux работает так же.">Никак, tmux на телефоне не работает</button>
+        </div>
+        <p class="why" hidden></p>
+      </div>
+      <div class="q" data-q>
+        <p class="qt">Что нужно, чтобы подключиться к серверу из приложения?</p>
+        <div class="opts">
+          <button class="opt" data-why="Apple ID серверу не нужен.">Apple ID и пароль от него</button>
+          <button class="opt" data-ok data-why="Верно. Это всё то же, что для ssh с компьютера.">Адрес сервера, порт, имя пользователя на сервере и ключ или пароль</button>
+          <button class="opt" data-why="Номер телефона серверу не нужен.">Только номер телефона</button>
+        </div>
+        <p class="why" hidden></p>
+      </div>
+    </section>
+  </article>
+</template>
+
 <template id="t-habits">
   <article class="lesson">
     <header class="lesson-head">
-      <span class="eyebrow">Урок 15 · Привычки</span>
+      <span class="eyebrow">Урок 16 · Привычки</span>
       <h2>Десять привычек, чтобы ничего не сломать</h2>
       <p class="lead">Почти все серьёзные поломки на серверах — не сложные ошибки, а пропущенная простая проверка.</p>
     </header>
@@ -1831,6 +2051,8 @@ anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначал
         <li><b>Чтение и правка</b> — less и tail -f для чтения, nano для правки. Выход из vim: Esc, <code>:q!</code> или <code>:wq</code>. Копия перед правкой, служба перечитывает настройки при перезапуске.</li>
         <li><b>Ошибки</b> — программа: что: причина. Начинать с первой. Permission denied — права, No such file — путь, command not found — имя программы.</li>
         <li><b>sudo и SSH</b> — sudo на одну команду и с вашим паролем. Файлы от sudo принадлежат root. Закрытый ключ никому. Изменился отпечаток сервера — стоп.</li>
+        <li><b>tmux руками</b> — <code>tmux new -s имя</code> создать, Ctrl+B, d свернуть, <code>tmux ls</code> список, <code>tmux attach -t имя</code> вернуться, <code>exit</code> в последнем окне закрывает сессию насовсем.</li>
+        <li><b>Сервер с iPhone</b> — приложение-терминал (Termius), адрес, порт, логин на сервере, ключ. Админу только открытую часть. Подключились — сразу tmux.</li>
         <li><b>Привычки</b> — посмотри, где ты. Проверь шаблон. Копия перед правкой. Долгое в tmux. Не уверен — Ctrl+C.</li>
       </ul>
     </div>
@@ -1886,13 +2108,14 @@ anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначал
     { id: "edit", n: "12", t: "Читать и править", d: "less, nano, выход из vim", part: 2 },
     { id: "errors", n: "13", t: "Ошибки", d: "Что проверить по каждой", part: 2 },
     { id: "sudo", n: "14", t: "sudo и SSH", d: "Стать root на минуту, ключи", part: 2 },
-    { id: "habits", n: "15", t: "Привычки", d: "Десять правил безопасности", part: 2 },
-    { id: "final", n: "16", t: "Итог", d: "Шпаргалка по идеям", part: 3 },
+    { id: "phone", n: "15", t: "Сервер с iPhone", d: "Терминал в кармане, ключи, tmux", part: 2 },
+    { id: "habits", n: "16", t: "Привычки", d: "Десять правил безопасности", part: 2 },
+    { id: "final", n: "17", t: "Итог", d: "Шпаргалка по идеям", part: 3 },
     { id: "exam", n: "★", t: "Экзамен", d: "20 вопросов на звание", part: 3 },
     { id: "review", n: "↻", t: "Повторялка", d: "Карточки из пройденного", part: 3 }
   ];
   var PARTS = { 1: "Часть 1 · Устройство", 2: "Часть 2 · Практика", 3: "Финиш" };
-  var QUIZZED = ["arch", "users", "groups", "perms", "procs", "jobs", "tmux", "sandbox", "paths", "cmd", "files", "edit", "errors", "sudo", "habits"];
+  var QUIZZED = ["arch", "users", "groups", "perms", "procs", "jobs", "tmux", "sandbox", "paths", "cmd", "files", "edit", "errors", "sudo", "phone", "habits"];
   var EXAM_N = 20, EXAM_PASS = 90, EXAM_BONUS = 100;
   var NAME = {}; LESSONS.forEach(function (l) { NAME[l.id] = l.t; });
   function load(k, d) { try { var v = JSON.parse(localStorage.getItem(k) || "null"); return v == null ? d : v; } catch (e) { return d; } }
@@ -1900,6 +2123,20 @@ anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначал
   // pts: qid -> points earned for a lesson question (present = answered correctly)
   // srs: qid -> {box, due, wrong}; revPts: points from the review deck
   var pts = load("lx-pts", {}), srs = load("lx-srs", {}), revPts = load("lx-rev", 0);
+  var STORE_OK = (function () { try { localStorage.setItem("lx-probe", "1"); var ok = localStorage.getItem("lx-probe") === "1"; localStorage.removeItem("lx-probe"); return ok; } catch (e) { return false; } })();
+  var PKEYS = ["lx-pts", "lx-srs", "lx-rev", "lx-exam", "lx-sb"];
+  function exportCode() {
+    var o = {}; PKEYS.forEach(function (k) { o[k] = k === "lx-pts" ? pts : k === "lx-srs" ? srs : k === "lx-rev" ? revPts : load(k, null); });
+    return "LX1." + btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+  }
+  function importCode(code) {
+    code = String(code || "").trim();
+    if (code.indexOf("LX1.") !== 0) throw new Error("Это не код прогресса: он должен начинаться с LX1.");
+    var o = JSON.parse(decodeURIComponent(escape(atob(code.slice(4)))));
+    if (!o || typeof o !== "object" || typeof o["lx-pts"] !== "object") throw new Error("Код повреждён: скопируйте его целиком.");
+    pts = o["lx-pts"] || {}; srs = o["lx-srs"] || {}; revPts = +o["lx-rev"] || 0;
+    PKEYS.forEach(function (k) { if (o[k] != null) store(k, o[k]); });
+  }
   var PTS = [10, 5, 1]; // first try, second try, later
   var DAYS = [0, 1, 3, 7, 14];
   var QCOUNT = {};
@@ -2520,6 +2757,75 @@ anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначал
     $("tm-split").addEventListener("click", function () { var w = tm.wins[tm.cur]; if (w.panes < 3) { w.panes++; w.act = w.panes - 1; } tmDraw(); });
     $("tm-reset").addEventListener("click", tmReset);
     tmReset();
+    initTmuxCli();
+  }
+
+  /* tmux command trainer: shell <-> tmux sessions, detach/attach, windows, panes, scroll */
+  function initTmuxCli() {
+    var S = {}, att = null, nextAuto = 0, scroll = false, wantPrefix = false;
+    function say(s, cls) { var l = $("tc-log"); l.appendChild(el("span", { class: cls || "" })).textContent = s; while (l.children.length > 10) l.removeChild(l.firstChild); }
+    function cur() { return att ? S[att] : null; }
+    function newSession(name) {
+      S[name] = { wins: [{ name: "bash", panes: 1, task: null }], cur: 0, made: new Date() };
+      att = name; scroll = false;
+    }
+    function draw() {
+      var scr = $("tc-screen");
+      if (!att) {
+        scr.innerHTML = '<div class="tm-body"><span>anna@server:~$ ▌</span><span class="dim">Вы в обычной оболочке, вне tmux.</span></div>';
+      } else {
+        var s = cur(), w = s.wins[s.cur];
+        var body = '<div class="tm-panes" style="grid-template-columns:' + (w.panes > 1 ? "1fr 1fr" : "1fr") + '">';
+        for (var i = 0; i < w.panes; i++) body += '<div class="tm-pane">' + (i === 0 && w.task ? "импорт базы: " + Math.floor(w.task.p) + "%" + (w.task.p >= 100 ? " — готово" : "") : "anna@server:~$ ▌") + "</div>";
+        body += "</div>";
+        var bar = "[" + esc(att) + "] " + s.wins.map(function (x, i) { return i + ":" + esc(x.name) + (i === s.cur ? "*" : ""); }).join("  ");
+        scr.innerHTML = (scroll ? '<div class="tm-scroll">[режим прокрутки: листайте стрелками, выход — q]</div>' : "") + body + '<div class="status">' + bar + "</div>";
+      }
+      var names = Object.keys(S);
+      $("tc-pref").querySelectorAll("button").forEach(function (b) { b.disabled = !att; });
+      $("tc-in").querySelectorAll("button").forEach(function (b) { b.disabled = !att; });
+    }
+    function sh(cmd, fn) { var b = el("button", { class: "btn mono" }); b.textContent = cmd; b.addEventListener("click", function () { say((att ? "" : "$ ") + cmd, "dim"); fn(); draw(); }); return b; }
+    function nestedErr() { say("sessions should be nested with care, unset $TMUX to force", "bad"); say("Вы уже внутри tmux. Сначала сверните сессию: Ctrl+B, потом d.", "hl"); }
+    var shell = $("tc-shell");
+    shell.appendChild(sh("tmux", function () { if (att) return nestedErr(); var n = String(nextAuto++); while (S[n]) n = String(nextAuto++); newSession(n); say("Создана сессия «" + n + "». Имя — просто номер, лучше давать свои имена.", "ok"); }));
+    shell.appendChild(sh("tmux new -s rabota", function () { if (att) return nestedErr(); if (S.rabota) { say("duplicate session: rabota", "bad"); say("Такая сессия уже есть. Чтобы в неё войти: tmux attach -t rabota", "hl"); return; } newSession("rabota"); say("Создана сессия «rabota», вы внутри.", "ok"); }));
+    shell.appendChild(sh("tmux ls", function () {
+      if (att) { say("(команда сработает и внутри tmux, но обычно её набирают в оболочке)", "dim"); }
+      var n = Object.keys(S); if (!n.length) { say("no server running on /tmp/tmux-1001/default", "bad"); say("Сессий нет ни одной.", "hl"); return; }
+      n.forEach(function (k) { say(k + ": " + S[k].wins.length + " windows" + (k === att ? " (attached)" : ""), ""); });
+    }));
+    shell.appendChild(sh("tmux attach -t rabota", function () { if (att) return nestedErr(); if (!S.rabota) { say("can't find session: rabota", "bad"); return; } att = "rabota"; say("Вы вернулись в «rabota». Всё на месте, как оставили.", "ok"); }));
+    shell.appendChild(sh("tmux a", function () { if (att) return nestedErr(); var n = Object.keys(S); if (!n.length) { say("no sessions", "bad"); return; } att = n[n.length - 1]; say("Подключились к последней сессии «" + att + "».", "ok"); }));
+    shell.appendChild(sh("tmux kill-session -t rabota", function () { if (!S.rabota) { say("can't find session: rabota", "bad"); return; } var t = S.rabota.wins.some(function (w) { return w.task && w.task.p < 100; }); delete S.rabota; if (att === "rabota") { att = null; say("[exited]", "dim"); } say("Сессия «rabota» уничтожена." + (t ? " Незаконченная задача в ней убита." : ""), "bad"); }));
+    var pref = $("tc-pref");
+    function P(k, label, fn) { var b = el("button", { class: "btn mono" }); b.textContent = label; b.addEventListener("click", function () { if (!att) return; say("Ctrl+B, " + k, "dim"); fn(); draw(); }); pref.appendChild(b); }
+    P("d", "d — свернуть", function () { var n = att; att = null; scroll = false; say("[detached (from session " + n + ")]", "ok"); say("Вы снаружи. Сессия «" + n + "» и всё в ней работает дальше.", "ok"); });
+    P("c", "c — новое окно", function () { var s = cur(); s.wins.push({ name: "bash", panes: 1, task: null }); s.cur = s.wins.length - 1; });
+    P("n", "n — следующее окно", function () { var s = cur(); s.cur = (s.cur + 1) % s.wins.length; });
+    P("%", "% — разрезать", function () { var w = cur().wins[cur().cur]; if (w.panes < 2) w.panes = 2; else say("В тренажёре максимум две панели.", "dim"); });
+    P("[", "[ — прокрутка", function () { scroll = true; });
+    P(",", ", — переименовать окно", function () { var w = cur().wins[cur().cur]; w.name = w.name === "logi" ? "bash" : "logi"; say("Окно переименовано в «" + w.name + "».", "ok"); });
+    var inn = $("tc-in");
+    function I(label, fn) { var b = el("button", { class: "btn mono" }); b.textContent = label; b.addEventListener("click", function () { if (!att) return; fn(); draw(); }); inn.appendChild(b); }
+    I("запустить долгую задачу", function () { var w = cur().wins[cur().cur]; if (w.task && w.task.p < 100) { say("Задача уже идёт в этом окне.", "dim"); return; } w.task = { p: 0 }; say("Импорт базы запущен в окне " + cur().cur + ".", "ok"); });
+    I("q (выйти из прокрутки)", function () { if (scroll) { scroll = false; say("Режим прокрутки закрыт.", "dim"); } else say("q без режима прокрутки просто напечатается в оболочке.", "dim"); });
+    I("exit", function () {
+      var s = cur(), w = s.wins[s.cur];
+      if (w.panes > 1) { w.panes--; say("Панель закрыта.", "dim"); return; }
+      if (w.task && w.task.p < 100) say("Задача в этом окне получила сигнал обрыва и умерла.", "bad");
+      s.wins.splice(s.cur, 1);
+      if (!s.wins.length) { var n = att; delete S[n]; att = null; say("[exited]", "dim"); say("Это было последнее окно: сессия «" + n + "» закрылась насовсем.", "bad"); return; }
+      s.cur = Math.min(s.cur, s.wins.length - 1); say("Окно закрыто.", "dim");
+    });
+    var timer = setInterval(function () {
+      var ch = false;
+      Object.keys(S).forEach(function (k) { S[k].wins.forEach(function (w) { if (w.task && w.task.p < 100) { w.task.p = Math.min(100, w.task.p + 1); ch = true; if (w.task.p >= 100) say("(в сессии «" + k + "» импорт закончился" + (k === att ? "" : ", пока вас там не было") + ")", "ok"); } }); });
+      if (ch) draw();
+    }, 300);
+    cleanup.push(function () { clearInterval(timer); });
+    $("tc-log").innerHTML = '<span class="dim">Начните с: tmux new -s rabota</span>';
+    draw();
   }
 
   function initFinal() {
@@ -2834,6 +3140,55 @@ anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначал
     $("h-log").innerHTML = '<span class="dim">нажмите «Следующий шаг»</span>'; pdraw();
   }
 
+  function initPhone() {
+    var st;
+    function reset() { st = { conn: false, inTmux: false, sess: false, task: null, away: false }; $("ph-log").innerHTML = '<span class="dim">Termius: заполните подключение и нажмите «Подключиться»</span>'; }
+    function say(s, cls) { var l = $("ph-log"); l.appendChild(el("span", { class: cls || "" })).textContent = s; while (l.children.length > 10) l.removeChild(l.firstChild); }
+    function v(id) { return $(id).value; }
+    function connect() {
+      if (st.conn) { say("Вы уже подключены.", "dim"); return; }
+      var host = v("ph-host") === "ok" ? "server.example.com" : "sever.example.com";
+      say("ssh " + v("ph-user") + "@" + host + " -p " + v("ph-port"), "dim");
+      if (v("ph-host") !== "ok") { say("Could not resolve hostname " + host + ": такого имени нет. Опечатка в адресе.", "bad"); return; }
+      if (v("ph-port") !== "22") { say("connect to host " + host + " port " + v("ph-port") + ": Connection timed out", "bad"); say("На этом порту никто не отвечает. Уточните порт у админа.", "hl"); return; }
+      if (!st.seen) { say("The authenticity of host '" + host + "' can't be established. Fingerprint SHA256:abc...xyz. Continue? → yes", "hl"); st.seen = true; }
+      if (v("ph-user") !== "anna") { say(v("ph-user") + "@" + host + ": Permission denied (publickey).", "bad"); say("Такого пользователя на сервере нет. Нужен ваш логин на сервере, а не имя телефона.", "hl"); return; }
+      if (v("ph-auth") === "keyno") { say("anna@" + host + ": Permission denied (publickey).", "bad"); say("Открытый ключ ещё не у админа. Отправьте ему открытую часть, закрытая остаётся в телефоне.", "hl"); return; }
+      if (v("ph-auth") === "pass") say("anna@" + host + "'s password: (набираете, символы не видны)", "dim");
+      st.conn = true; st.inTmux = false; say("Подключено. anna@server:~$", "ok");
+      if (st.sess) say("Подсказка: у вас есть живая сессия tmux «phone». Вернуться: tmux attach -t phone", "hl");
+    }
+    $("ph-go").addEventListener("click", connect);
+    $("ph-tmux").addEventListener("click", function () {
+      if (!st.conn) { say("Сначала подключитесь.", "dim"); return; }
+      if (st.inTmux) { say("Вы уже в tmux.", "dim"); return; }
+      if (st.sess) { say("duplicate session: phone. Она уже есть, войдите в неё: tmux attach -t phone", "bad"); return; }
+      st.sess = true; st.inTmux = true; say("Создана сессия «phone». Зелёная полоса внизу — вы в tmux.", "ok");
+    });
+    $("ph-att").addEventListener("click", function () {
+      if (!st.conn) { say("Сначала подключитесь.", "dim"); return; }
+      if (!st.sess) { say("no sessions: сессии ещё нет, создайте её: tmux new -s phone", "bad"); return; }
+      if (st.inTmux) { say("Вы уже внутри.", "dim"); return; }
+      st.inTmux = true; say("Вы вернулись в «phone». " + (st.task ? (st.task.dead ? "" : "Задача на месте: " + Math.floor(st.task.p) + "%.") : "Всё как было."), "ok");
+    });
+    $("ph-task").addEventListener("click", function () {
+      if (!st.conn) { say("Сначала подключитесь.", "dim"); return; }
+      st.task = { p: 0, dead: false, tmux: st.inTmux }; say("Запущен долгий импорт" + (st.inTmux ? " внутри tmux." : " БЕЗ tmux — рискованно на телефоне."), st.inTmux ? "ok" : "hl");
+    });
+    $("ph-bg").addEventListener("click", function () {
+      if (!st.conn) { say("Вы и так не подключены.", "dim"); return; }
+      st.conn = false; st.inTmux = false;
+      say("Вы ушли в другое приложение. Через пару минут iPhone усыпил терминал: Connection closed. Disconnected.", "hl");
+      if (st.task && !st.task.dead) {
+        if (st.task.tmux) { st.task.p = Math.min(100, st.task.p + 60); say("Задача в tmux работала дальше без вас: уже " + Math.floor(st.task.p) + "%.", "ok"); }
+        else { st.task.dead = true; say("Задача была вне tmux: получила сигнал обрыва и умерла.", "bad"); }
+      }
+    });
+    $("ph-back").addEventListener("click", function () { if (st.conn) { say("Связь и так есть.", "dim"); return; } connect(); });
+    $("ph-host").addEventListener("change", function () { st.conn = false; });
+    reset();
+  }
+
   function initHabits() {
     var S = [
       ["Перед rm *.log сначала выполнить ls *.log", 1, "Так вы увидите, что попадёт под удаление."],
@@ -2895,7 +3250,7 @@ anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначал
     showStat();
   }
 
-  var INIT = { start: function () { renderMap("map"); }, arch: initArch, users: initUsers, groups: initGroups, perms: initPerms, procs: initProcs, jobs: initJobs, tmux: initTmux, sandbox: initSandbox, paths: initPaths, cmd: initCmd, files: initFiles, edit: initEdit, errors: initErrors, sudo: initSudo, habits: initHabits, final: initFinal, exam: initExam, review: initReview };
+  var INIT = { start: function () { renderMap("map"); }, arch: initArch, users: initUsers, groups: initGroups, perms: initPerms, procs: initProcs, jobs: initJobs, tmux: initTmux, sandbox: initSandbox, paths: initPaths, cmd: initCmd, files: initFiles, edit: initEdit, errors: initErrors, sudo: initSudo, phone: initPhone, habits: initHabits, final: initFinal, exam: initExam, review: initReview };
 
   function route() {
     cleanup.forEach(function (f) { f(); }); cleanup = [];
@@ -2916,6 +3271,20 @@ anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначал
     window.scrollTo(0, 0);
   }
   window.addEventListener("hashchange", route);
+  if (!STORE_OK) {
+    var sw = $("store-warn"); sw.hidden = false;
+    sw.textContent = "⚠ Этот браузер не даёт сохранять прогресс (частный режим или встроенный браузер чата). Откройте курс в обычном Safari или Chrome, иначе после закрытия всё обнулится. Можно также сохранить код прогресса ниже.";
+  }
+  $("transfer").addEventListener("toggle", function () { if ($("transfer").open) { $("tr-code").value = exportCode(); $("tr-msg").textContent = ""; } });
+  $("tr-copy").addEventListener("click", function () {
+    var t = $("tr-code"); t.value = exportCode();
+    function sel() { t.focus(); t.select(); $("tr-msg").textContent = "Код выделен: скопируйте его вручную."; }
+    try { navigator.clipboard.writeText(t.value).then(function () { $("tr-msg").textContent = "Код скопирован. Сохраните его, например отправьте себе в чат."; }, sel); } catch (e) { sel(); }
+  });
+  $("tr-load").addEventListener("click", function () {
+    try { importCode($("tr-code").value); $("tr-msg").textContent = "Прогресс восстановлен."; route(); }
+    catch (e) { $("tr-msg").textContent = "Не получилось: " + e.message; }
+  });
   route();
 })();
 </script>
