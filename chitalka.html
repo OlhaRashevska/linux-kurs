@@ -220,6 +220,12 @@ table.matrix { border-collapse: collapse; font-size: .93rem; min-width: 420px; }
 .tm-body .dim { color: var(--term-dim); }
 .tm-panes { display: grid; gap: 2px; background: var(--tmux); min-height: 110px; }
 .tm-pane { background: var(--term-bg); padding: 10px; }
+.tm-tree { padding: 10px; display: flex; flex-direction: column; gap: 2px; }
+.tm-tree .dim { color: var(--term-dim); margin-bottom: 6px; }
+.tm-node { background: none; border: 0; color: var(--term-fg); font: inherit; text-align: left; padding: 3px 6px; border-radius: 4px; white-space: pre; cursor: pointer; }
+.tm-node:hover, .tm-node:focus-visible { background: rgba(255,255,255,.12); }
+.tm-node.sub { color: #9FD3B5; }
+.steps-static { display: grid; gap: 10px; }
 .tm-scroll { background: #F0B35A; color: #1a1a1a; padding: 3px 10px; font-size: .78rem; }
 .phform { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
 .phform label { display: flex; flex-direction: column; gap: 4px; font-size: .88rem; color: var(--muted); }
@@ -911,6 +917,10 @@ anna@server:~$ _</div><p><b>Как читать.</b> Задача номер 2, 
         <tr><td>Закрыть окно целиком, со всеми панелями</td><td>Ctrl+B, потом &amp;, подтвердить y</td><td>в tmux</td></tr>
         <tr><td>Спрятать окно, оставив работать</td><td><code>tmux new -d -s sklad</code> один раз, потом Ctrl+B, : и <code>move-window -t sklad:</code></td><td>в tmux</td></tr>
         <tr><td>Вернуть спрятанное окно</td><td>Ctrl+B, : и <code>move-window -s sklad:имя</code></td><td>в tmux</td></tr>
+        <tr><td><b>Дерево всех сессий и окон</b>, перейти в любое</td><td>Ctrl+B, потом w; Enter — перейти, q — выйти, x не нажимать</td><td>в tmux</td></tr>
+        <tr><td>Список сессий</td><td>Ctrl+B, потом s</td><td>в tmux</td></tr>
+        <tr><td>Предыдущая / следующая сессия</td><td>Ctrl+B, потом ( / )</td><td>в tmux</td></tr>
+        <tr><td>Какие окна есть в сессии</td><td><code>tmux list-windows -t sklad</code></td><td>где угодно</td></tr>
         <tr><td>Совсем закрыть сессию со всем внутри</td><td><code>tmux kill-session -t rabota</code></td><td>в оболочке</td></tr>
       </tbody>
     </table></div>
@@ -955,6 +965,51 @@ tmux attach -t rabota   вернуть то же самое</div><p><b>Сове�
           <details class="ropt"><summary>Ctrl+B, : и move-window -s sklad:rabota</summary><p><b class="v-ok">✓ Верно.</b> Верно. -s значит «откуда», sklad:rabota — окно rabota из сессии sklad.</p></details>
           <details class="ropt"><summary>tmux new -s sklad</summary><p><b class="v-bad">✗ Неверно.</b> Это создаст ещё одну сессию со складом, окно не вернётся.</p></details>
           <details class="ropt"><summary>Ctrl+B, потом c</summary><p><b class="v-bad">✗ Неверно.</b> Это новое пустое окно, а не то же самое.</p></details>
+        </div>
+        
+      </div>
+    </section>
+    <h3>Много окон под разные задачи: наводим порядок</h3>
+    <div class="prose">
+      <p>Типичная картина: в сессии <code>main</code> накопилось десять окон под разные задачи, полоса внизу не помещается на экран. Закрывать нельзя, к задачам нужно возвращаться. План из четырёх шагов:</p>
+    </div>
+    <div class="steps-static">
+      <div class="ex"><p class="sit">Шаг 0. Дать окнам имена задач</p><div class="term">Ctrl+B, потом ,   →  ввести имя (bot, otchet, logi)  →  Enter</div><p>Пока окна называются <code>bash</code>, их не различить ни в полосе, ни на складе. Переименуйте каждое по задаче.</p></div>
+      <div class="ex"><p class="sit">Шаг 1. Один раз создать склад</p><div class="term">tmux new -d -s sklad</div><p>Отдельная сессия, куда будем убирать окна. <code>-d</code> — создать, но не входить в неё.</p></div>
+      <div class="ex"><p class="sit">Шаг 2. Убрать лишние окна</p><div class="term">(встать в окно)  Ctrl+B, потом :  →  move-window -t sklad:  →  Enter</div><p>Повторить для каждого окна, которое сейчас не нужно. Из полосы <code>main</code> оно пропадает, программы в нём работают дальше.</p></div>
+      <div class="ex"><p class="sit">Шаг 3. Найти и перейти: дерево всех окон</p><div class="term">Ctrl+B, потом w</div><p>Откроется дерево <b>всех сессий и окон</b>, включая склад, с предпросмотром содержимого. Стрелками выбрать окно, <b>Enter</b> — перейти в него, <b>q</b> — выйти без выбора. Стрелка вправо раскрывает сессию, влево сворачивает. <b>Не нажимайте x</b>: в дереве это «закрыть выбранное» (tmux переспросит y/n, ответьте n).</p></div>
+      <div class="ex"><p class="sit">Шаг 4. Вернуться в main или вернуть окно</p><div class="term">Ctrl+B, потом (   или   )        перейти в предыдущую / следующую сессию
+Ctrl+B, потом s                  список сессий, выбрать main и Enter
+Ctrl+B, потом :  →  move-window -s sklad:bot    вернуть окно bot в полосу</div><p>После перехода в окно на складе вы оказываетесь в сессии <code>sklad</code>. Чтобы вернуться к <code>main</code>, переключите сессию. Если окно снова нужно постоянно, верните его в полосу через <code>move-window -s</code>.</p></div>
+    </div>
+    <div class="big-idea"><b>Можно вообще ничего не прятать.</b> Если окна мешают только тем, что их много в полосе, переключайтесь через <b>Ctrl+B, w</b>: удобный список с предпросмотром, и не нужно помнить номера. Прятать на склад стоит то, что долго не понадобится.</div>
+    <div class="trap"><b>Не всё можно переносить и закрывать.</b> Некоторые программы находят своё окно tmux по имени или по сессии: агенты чата, боты, скрипты, которые туда что-то печатают. Если такое окно переименовать, перенести или закрыть, программа перестанет до него достучаться. Если не знаете, что работает в окне, не трогайте его и спросите того, кто его создал.</div>
+    <section class="quiz">
+      <h3>Проверь себя: порядок в окнах</h3>
+      <div class="q" data-q data-extra>
+        <p class="qt">Как увидеть сразу все сессии и окна, включая склад, и перейти в нужное?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Ctrl+B, потом n</summary><p><b class="v-bad">✗ Неверно.</b> Ctrl+B, n листает окна только текущей сессии.</p></details>
+          <details class="ropt"><summary>Ctrl+B, потом w</summary><p><b class="v-ok">✓ Верно.</b> Верно. Дерево всех сессий и окон с предпросмотром. Enter — перейти, q — выйти.</p></details>
+          <details class="ropt"><summary>tmux ls</summary><p><b class="v-bad">✗ Неверно.</b> tmux ls покажет только сессии, без окон, и перейти из него нельзя.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q data-extra>
+        <p class="qt">Вы перешли через дерево в окно на складе. Как вернуться в сессию main?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Ctrl+B, потом ( или ), либо Ctrl+B, s и выбрать main</summary><p><b class="v-ok">✓ Верно.</b> Верно. ( и ) переключают сессии, а Ctrl+B, s даёт их список.</p></details>
+          <details class="ropt"><summary>Набрать exit</summary><p><b class="v-bad">✗ Неверно.</b> exit закроет окно, в котором вы стоите, то есть то самое окно со склада.</p></details>
+          <details class="ropt"><summary>Ctrl+B, потом d</summary><p><b class="v-bad">✗ Неверно.</b> Ctrl+B, d отключит вас от tmux совсем.</p></details>
+        </div>
+        
+      </div>
+      <div class="q" data-q data-extra>
+        <p class="qt">Зачем перед уборкой давать окнам имена?</p>
+        <div class="opts">
+          <details class="ropt"><summary>Чтобы они быстрее работали</summary><p><b class="v-bad">✗ Неверно.</b> Скорость тут ни при чём.</p></details>
+          <details class="ropt"><summary>Чтобы потом найти их на складе и в дереве и вернуть по имени</summary><p><b class="v-ok">✓ Верно.</b> Верно. Десять окон с именем bash не различить, а bot или otchet найдёте сразу и вернёте командой move-window -s sklad:bot.</p></details>
+          <details class="ropt"><summary>Без имени окно нельзя перенести</summary><p><b class="v-bad">✗ Неверно.</b> Окно без имени tmux перенесёт так же.</p></details>
         </div>
         
       </div>

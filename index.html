@@ -224,6 +224,12 @@ table.matrix { border-collapse: collapse; font-size: .93rem; min-width: 420px; }
 .tm-body .dim { color: var(--term-dim); }
 .tm-panes { display: grid; gap: 2px; background: var(--tmux); min-height: 110px; }
 .tm-pane { background: var(--term-bg); padding: 10px; }
+.tm-tree { padding: 10px; display: flex; flex-direction: column; gap: 2px; }
+.tm-tree .dim { color: var(--term-dim); margin-bottom: 6px; }
+.tm-node { background: none; border: 0; color: var(--term-fg); font: inherit; text-align: left; padding: 3px 6px; border-radius: 4px; white-space: pre; cursor: pointer; }
+.tm-node:hover, .tm-node:focus-visible { background: rgba(255,255,255,.12); }
+.tm-node.sub { color: #9FD3B5; }
+.steps-static { display: grid; gap: 10px; }
 .tm-scroll { background: #F0B35A; color: #1a1a1a; padding: 3px 10px; font-size: .78rem; }
 .phform { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
 .phform label { display: flex; flex-direction: column; gap: 4px; font-size: .88rem; color: var(--muted); }
@@ -1033,6 +1039,10 @@ anna@server:~$ _</div><p><b>Как читать.</b> Задача номер 2, 
         <tr><td>Закрыть окно целиком, со всеми панелями</td><td>Ctrl+B, потом &amp;, подтвердить y</td><td>в tmux</td></tr>
         <tr><td>Спрятать окно, оставив работать</td><td><code>tmux new -d -s sklad</code> один раз, потом Ctrl+B, : и <code>move-window -t sklad:</code></td><td>в tmux</td></tr>
         <tr><td>Вернуть спрятанное окно</td><td>Ctrl+B, : и <code>move-window -s sklad:имя</code></td><td>в tmux</td></tr>
+        <tr><td><b>Дерево всех сессий и окон</b>, перейти в любое</td><td>Ctrl+B, потом w; Enter — перейти, q — выйти, x не нажимать</td><td>в tmux</td></tr>
+        <tr><td>Список сессий</td><td>Ctrl+B, потом s</td><td>в tmux</td></tr>
+        <tr><td>Предыдущая / следующая сессия</td><td>Ctrl+B, потом ( / )</td><td>в tmux</td></tr>
+        <tr><td>Какие окна есть в сессии</td><td><code>tmux list-windows -t sklad</code></td><td>где угодно</td></tr>
         <tr><td>Совсем закрыть сессию со всем внутри</td><td><code>tmux kill-session -t rabota</code></td><td>в оболочке</td></tr>
       </tbody>
     </table></div>
@@ -1081,10 +1091,56 @@ tmux attach -t rabota   вернуть то же самое</div><p><b>Сове�
         <p class="why" hidden></p>
       </div>
     </section>
+    <h3>Много окон под разные задачи: наводим порядок</h3>
+    <div class="prose">
+      <p>Типичная картина: в сессии <code>main</code> накопилось десять окон под разные задачи, полоса внизу не помещается на экран. Закрывать нельзя, к задачам нужно возвращаться. План из четырёх шагов:</p>
+    </div>
+    <div class="steps-static">
+      <div class="ex"><p class="sit">Шаг 0. Дать окнам имена задач</p><div class="term">Ctrl+B, потом ,   →  ввести имя (bot, otchet, logi)  →  Enter</div><p>Пока окна называются <code>bash</code>, их не различить ни в полосе, ни на складе. Переименуйте каждое по задаче.</p></div>
+      <div class="ex"><p class="sit">Шаг 1. Один раз создать склад</p><div class="term">tmux new -d -s sklad</div><p>Отдельная сессия, куда будем убирать окна. <code>-d</code> — создать, но не входить в неё.</p></div>
+      <div class="ex"><p class="sit">Шаг 2. Убрать лишние окна</p><div class="term">(встать в окно)  Ctrl+B, потом :  →  move-window -t sklad:  →  Enter</div><p>Повторить для каждого окна, которое сейчас не нужно. Из полосы <code>main</code> оно пропадает, программы в нём работают дальше.</p></div>
+      <div class="ex"><p class="sit">Шаг 3. Найти и перейти: дерево всех окон</p><div class="term">Ctrl+B, потом w</div><p>Откроется дерево <b>всех сессий и окон</b>, включая склад, с предпросмотром содержимого. Стрелками выбрать окно, <b>Enter</b> — перейти в него, <b>q</b> — выйти без выбора. Стрелка вправо раскрывает сессию, влево сворачивает. <b>Не нажимайте x</b>: в дереве это «закрыть выбранное» (tmux переспросит y/n, ответьте n).</p></div>
+      <div class="ex"><p class="sit">Шаг 4. Вернуться в main или вернуть окно</p><div class="term">Ctrl+B, потом (   или   )        перейти в предыдущую / следующую сессию
+Ctrl+B, потом s                  список сессий, выбрать main и Enter
+Ctrl+B, потом :  →  move-window -s sklad:bot    вернуть окно bot в полосу</div><p>После перехода в окно на складе вы оказываетесь в сессии <code>sklad</code>. Чтобы вернуться к <code>main</code>, переключите сессию. Если окно снова нужно постоянно, верните его в полосу через <code>move-window -s</code>.</p></div>
+    </div>
+    <div class="big-idea"><b>Можно вообще ничего не прятать.</b> Если окна мешают только тем, что их много в полосе, переключайтесь через <b>Ctrl+B, w</b>: удобный список с предпросмотром, и не нужно помнить номера. Прятать на склад стоит то, что долго не понадобится.</div>
+    <div class="trap"><b>Не всё можно переносить и закрывать.</b> Некоторые программы находят своё окно tmux по имени или по сессии: агенты чата, боты, скрипты, которые туда что-то печатают. Если такое окно переименовать, перенести или закрыть, программа перестанет до него достучаться. Если не знаете, что работает в окне, не трогайте его и спросите того, кто его создал.</div>
+    <section class="quiz">
+      <h3>Проверь себя: порядок в окнах</h3>
+      <div class="q" data-q data-extra>
+        <p class="qt">Как увидеть сразу все сессии и окна, включая склад, и перейти в нужное?</p>
+        <div class="opts">
+          <button class="opt" data-why="Ctrl+B, n листает окна только текущей сессии.">Ctrl+B, потом n</button>
+          <button class="opt" data-ok data-why="Верно. Дерево всех сессий и окон с предпросмотром. Enter — перейти, q — выйти.">Ctrl+B, потом w</button>
+          <button class="opt" data-why="tmux ls покажет только сессии, без окон, и перейти из него нельзя.">tmux ls</button>
+        </div>
+        <p class="why" hidden></p>
+      </div>
+      <div class="q" data-q data-extra>
+        <p class="qt">Вы перешли через дерево в окно на складе. Как вернуться в сессию main?</p>
+        <div class="opts">
+          <button class="opt" data-ok data-why="Верно. ( и ) переключают сессии, а Ctrl+B, s даёт их список.">Ctrl+B, потом ( или ), либо Ctrl+B, s и выбрать main</button>
+          <button class="opt" data-why="exit закроет окно, в котором вы стоите, то есть то самое окно со склада.">Набрать exit</button>
+          <button class="opt" data-why="Ctrl+B, d отключит вас от tmux совсем.">Ctrl+B, потом d</button>
+        </div>
+        <p class="why" hidden></p>
+      </div>
+      <div class="q" data-q data-extra>
+        <p class="qt">Зачем перед уборкой давать окнам имена?</p>
+        <div class="opts">
+          <button class="opt" data-why="Скорость тут ни при чём.">Чтобы они быстрее работали</button>
+          <button class="opt" data-ok data-why="Верно. Десять окон с именем bash не различить, а bot или otchet найдёте сразу и вернёте командой move-window -s sklad:bot.">Чтобы потом найти их на складе и в дереве и вернуть по имени</button>
+          <button class="opt" data-why="Окно без имени tmux перенесёт так же.">Без имени окно нельзя перенести</button>
+        </div>
+        <p class="why" hidden></p>
+      </div>
+    </section>
     <section class="lab">
       <div class="lab-title"><span class="tag">тренажёр</span><h3>tmux по-настоящему</h3></div>
       <p class="lab-hint">Нажимайте команды в любом порядке, как на настоящем сервере. Попробуйте: создать сессию «rabota», запустить задачу, свернуть, посмотреть список, вернуться и убедиться, что задача шла без вас.</p>
       <p class="lab-hint">Второе задание, со складом: создать новое окно (c) и назвать его «rabota» (,), запустить в нём задачу, создать склад (<code>tmux new -d -s sklad</code>), спрятать окно (<code>move-window -t sklad:</code>), убедиться, что оно пропало из полосы, и вернуть его (<code>move-window -s sklad:rabota</code>). Для сравнения закройте окно через &amp;: вернуть его уже не получится.</p>
+      <p class="lab-hint">Третье задание, как в жизни: <code>tmux new -s main</code> создаст сессию с кучей окон. Создайте склад, перейдите в окно bot (Ctrl+B, n) и уберите его на склад. Потом откройте дерево (Ctrl+B, w), перейдите в bot на складе, вернитесь в main через Ctrl+B, ( и верните bot в полосу (<code>move-window -s sklad:bot</code>).</p>
       <div class="tmsim" id="tc-screen"></div>
       <div class="lab-hint">В оболочке:</div>
       <div class="row" id="tc-shell"></div>
@@ -2814,7 +2870,7 @@ anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначал
 
   /* tmux command trainer: shell <-> tmux sessions, detach/attach, windows, panes, scroll */
   function initTmuxCli() {
-    var S = {}, att = null, nextAuto = 0, scroll = false, wantPrefix = false;
+    var S = {}, att = null, nextAuto = 0, scroll = false, tree = null;
     function say(s, cls) { var l = $("tc-log"); l.appendChild(el("span", { class: cls || "" })).textContent = s; while (l.children.length > 10) l.removeChild(l.firstChild); }
     function cur() { return att ? S[att] : null; }
     function newSession(name) {
@@ -2825,6 +2881,22 @@ anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначал
       var scr = $("tc-screen");
       if (!att) {
         scr.innerHTML = '<div class="tm-body"><span>anna@server:~$ ▌</span><span class="dim">Вы в обычной оболочке, вне tmux.</span></div>';
+      } else if (tree) {
+        var h = '<div class="tm-tree"><div class="dim">' + (tree === "w" ? "Дерево сессий и окон: выберите окно (Enter), выход — кнопка q" : "Сессии: выберите (Enter), выход — кнопка q") + "</div>";
+        Object.keys(S).forEach(function (k) {
+          h += '<button class="tm-node" data-s="' + esc(k) + '" data-w="-1">' + (k === att ? "▸ " : "  ") + esc(k) + ": " + S[k].wins.length + " windows" + (k === att ? " (attached)" : "") + "</button>";
+          if (tree === "w") S[k].wins.forEach(function (w, i) { h += '<button class="tm-node sub" data-s="' + esc(k) + '" data-w="' + i + '">    ' + i + ": " + esc(w.name) + (w.task ? " — задача " + Math.floor(w.task.p) + "%" : "") + "</button>"; });
+        });
+        scr.innerHTML = h + "</div>";
+        scr.querySelectorAll(".tm-node").forEach(function (b) {
+          b.addEventListener("click", function () {
+            var k = b.getAttribute("data-s"), i = +b.getAttribute("data-w");
+            if (!S[k]) return;
+            att = k; if (i >= 0) S[k].cur = i; tree = null;
+            say("Перешли в " + k + (i >= 0 ? ":" + S[k].wins[i].name : "") + "." + (k !== "main" && k !== "rabota" ? " Вернуться в прежнюю сессию: Ctrl+B, ( или )." : ""), "ok");
+            draw();
+          });
+        });
       } else {
         var s = cur(), w = s.wins[s.cur];
         var body = '<div class="tm-panes" style="grid-template-columns:' + (w.panes > 1 ? "1fr 1fr" : "1fr") + '">';
@@ -2841,6 +2913,7 @@ anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначал
     function nestedErr() { say("sessions should be nested with care, unset $TMUX to force", "bad"); say("Вы уже внутри tmux. Сначала сверните сессию: Ctrl+B, потом d.", "hl"); }
     var shell = $("tc-shell");
     shell.appendChild(sh("tmux", function () { if (att) return nestedErr(); var n = String(nextAuto++); while (S[n]) n = String(nextAuto++); newSession(n); say("Создана сессия «" + n + "». Имя — просто номер, лучше давать свои имена.", "ok"); }));
+    shell.appendChild(sh("tmux new -s main", function () { if (att) return nestedErr(); if (S.main) { say("duplicate session: main", "bad"); say("Такая сессия уже есть: tmux attach -t main", "hl"); return; } newSession("main"); ["bot", "otchet", "logi"].forEach(function (n) { S.main.wins.push({ name: n, panes: 1, task: null }); }); S.main.cur = 0; say("Создана сессия «main» с окнами bash, bot, otchet, logi — как будто их накопилось много.", "ok"); }));
     shell.appendChild(sh("tmux new -s rabota", function () { if (att) return nestedErr(); if (S.rabota) { say("duplicate session: rabota", "bad"); say("Такая сессия уже есть. Чтобы в неё войти: tmux attach -t rabota", "hl"); return; } newSession("rabota"); say("Создана сессия «rabota», вы внутри.", "ok"); }));
     shell.appendChild(sh("tmux new -d -s sklad", function () { if (S.sklad) { say("duplicate session: sklad", "bad"); say("Склад уже есть.", "hl"); return; } S.sklad = { wins: [{ name: "bash", panes: 1, task: null }], cur: 0 }; say("Создана сессия-склад «sklad». Флаг -d: создать, но не входить. Вы остались, где были.", "ok"); }));
     shell.appendChild(sh("tmux list-windows -t sklad", function () { if (!S.sklad) { say("can't find session: sklad", "bad"); return; } S.sklad.wins.forEach(function (w, i) { say(i + ": " + w.name + (w.task ? " (задача " + Math.floor(w.task.p) + "%)" : ""), ""); }); }));
@@ -2859,6 +2932,10 @@ anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначал
     P("n", "n — следующее окно", function () { var s = cur(); s.cur = (s.cur + 1) % s.wins.length; });
     P("%", "% — разрезать", function () { var w = cur().wins[cur().cur]; if (w.panes < 2) w.panes = 2; else say("В тренажёре максимум две панели.", "dim"); });
     P("[", "[ — прокрутка", function () { scroll = true; });
+    P("w", "w — дерево всех окон", function () { tree = "w"; });
+    P("s", "s — список сессий", function () { tree = "s"; });
+    P("(", "( — предыдущая сессия", function () { var k = Object.keys(S), i = k.indexOf(att); if (k.length < 2) { say("Других сессий нет.", "dim"); return; } att = k[(i - 1 + k.length) % k.length]; tree = null; say("Сессия: " + att, "ok"); });
+    P(")", ") — следующая сессия", function () { var k = Object.keys(S), i = k.indexOf(att); if (k.length < 2) { say("Других сессий нет.", "dim"); return; } att = k[(i + 1) % k.length]; tree = null; say("Сессия: " + att, "ok"); });
     P(",", ", — переименовать окно", function () { var w = cur().wins[cur().cur]; if (w.name === "rabota") { say("Окно уже называется «rabota».", "dim"); return; } if (cur().wins.some(function (x) { return x.name === "rabota"; })) { say("В этой сессии уже есть окно «rabota».", "dim"); return; } w.name = "rabota"; say("Окно переименовано в «rabota».", "ok"); });
     P("&", "& — закрыть окно насовсем", function () {
       var s = cur(), w = s.wins[s.cur];
@@ -2878,6 +2955,14 @@ anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначал
       if (!s.wins.length) { var n = att; delete S[n]; att = null; say("Это было последнее окно, поэтому сессия «" + n + "» опустела и закрылась. Окно цело, оно на складе.", "hl"); return; }
       s.cur = Math.min(s.cur, s.wins.length - 1);
     });
+    P(":", ": move-window -s sklad:bot", function () {
+      if (!S.sklad) { say("can't find session: sklad", "bad"); return; }
+      if (att === "sklad") { say("Вы сами в сессии sklad, возвращать окно некуда. Сначала перейдите в main: Ctrl+B, (", "dim"); return; }
+      var k = -1; S.sklad.wins.forEach(function (x, i) { if (x.name === "bot") k = i; });
+      if (k < 0) { say("can't find window: bot", "bad"); return; }
+      var w = S.sklad.wins.splice(k, 1)[0]; if (!S.sklad.wins.length) delete S.sklad;
+      cur().wins.push(w); cur().cur = cur().wins.length - 1; say("Окно «bot» вернулось в полосу.", "ok");
+    });
     P(":", ": move-window -s sklad:rabota", function () {
       if (!S.sklad) { say("can't find session: sklad", "bad"); return; }
       if (att === "sklad") { say("Вы сами в сессии sklad, возвращать окно некуда.", "dim"); return; }
@@ -2891,7 +2976,7 @@ anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначал
     var inn = $("tc-in");
     function I(label, fn) { var b = el("button", { class: "btn mono" }); b.textContent = label; b.addEventListener("click", function () { if (!att) return; fn(); draw(); }); inn.appendChild(b); }
     I("запустить долгую задачу", function () { var w = cur().wins[cur().cur]; if (w.task && w.task.p < 100) { say("Задача уже идёт в этом окне.", "dim"); return; } w.task = { p: 0 }; say("Импорт базы запущен в окне " + cur().cur + ".", "ok"); });
-    I("q (выйти из прокрутки)", function () { if (scroll) { scroll = false; say("Режим прокрутки закрыт.", "dim"); } else say("q без режима прокрутки просто напечатается в оболочке.", "dim"); });
+    I("q (выйти из прокрутки или дерева)", function () { if (tree) { tree = null; say("Дерево закрыто.", "dim"); return; } if (scroll) { scroll = false; say("Режим прокрутки закрыт.", "dim"); } else say("q без режима прокрутки просто напечатается в оболочке.", "dim"); });
     I("exit", function () {
       var s = cur(), w = s.wins[s.cur];
       if (w.panes > 1) { w.panes--; say("Панель закрыта.", "dim"); return; }
