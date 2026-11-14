@@ -1030,13 +1030,61 @@ anna@server:~$ _</div><p><b>Как читать.</b> Задача номер 2, 
         <tr><td>Прокрутить вверх, почитать старый вывод</td><td>Ctrl+B, потом [ ; листать стрелками; выйти — q</td><td>в tmux</td></tr>
         <tr><td>Переименовать окно</td><td>Ctrl+B, потом ,</td><td>в tmux</td></tr>
         <tr><td>Закрыть панель или окно</td><td><code>exit</code> (закрывается оболочка в ней)</td><td>в tmux</td></tr>
+        <tr><td>Закрыть окно целиком, со всеми панелями</td><td>Ctrl+B, потом &amp;, подтвердить y</td><td>в tmux</td></tr>
+        <tr><td>Спрятать окно, оставив работать</td><td><code>tmux new -d -s sklad</code> один раз, потом Ctrl+B, : и <code>move-window -t sklad:</code></td><td>в tmux</td></tr>
+        <tr><td>Вернуть спрятанное окно</td><td>Ctrl+B, : и <code>move-window -s sklad:имя</code></td><td>в tmux</td></tr>
         <tr><td>Совсем закрыть сессию со всем внутри</td><td><code>tmux kill-session -t rabota</code></td><td>в оболочке</td></tr>
       </tbody>
     </table></div>
     <div class="trap"><b>Свернуть и закрыть — разные вещи.</b> Ctrl+B, d только отключает вас, а программы внутри работают дальше. <code>exit</code> в последнем окне и <code>kill-session</code> завершают оболочку, и всё, что в ней было запущено, получает сигнал обрыва. Хотите вернуться к работе потом — сворачивайте, а не закрывайте.</div>
+    <h3>Пример: окно «rabota». Закрыть, спрятать, вернуть</h3>
+    <div class="prose">
+      <p>Допустим, внизу зелёная полоса <code>[main] 0:bash  1:rabota*</code>, и в окне «rabota» идёт ваша работа. С ним можно сделать три разные вещи:</p>
+    </div>
+    <div class="examples">
+      <div class="ex"><p class="sit">1. Закрыть насовсем</p><div class="term">exit
+или Ctrl+B, потом &amp;  →  kill-window rabota? (y/n)  →  y</div><p><b>Что будет.</b> Окно исчезнет из полосы вместе со всем, что в нём было. Программы получат сигнал обрыва. <b>Открыть «его же» потом нельзя</b>, можно только создать новое пустое окно с тем же именем: <code>tmux new-window -n rabota</code>.</p></div>
+      <div class="ex"><p class="sit">2. Убрать из полосы, но оставить работать</p><div class="term">tmux new -d -s sklad          (один раз: создать сессию-склад)
+Ctrl+B, потом :  →  move-window -t sklad:</div><p><b>Что будет.</b> Свернуть одно окно tmux не умеет: сворачивается только сессия целиком. Поэтому окно <b>переносят в другую сессию</b>, «склад». Оно пропадает из вашей полосы, но живёт на складе, и программы в нём работают. Флаг <code>-d</code> значит «создать, но не входить», так что набрать это можно прямо внутри tmux. Двоеточие после <code>sklad</code> обязательно: это значит «в сессию sklad».</p></div>
+      <div class="ex"><p class="sit">3. Вернуть то же самое окно</p><div class="term">Ctrl+B, потом :  →  move-window -s sklad:rabota</div><p><b>Что будет.</b> Окно «rabota» вернётся в текущую сессию, в полосу внизу, со всем выводом и работающими программами. Посмотреть, что лежит на складе: <code>tmux list-windows -t sklad</code>.</p></div>
+      <div class="ex"><p class="sit">Проще: держать работу отдельной сессией с самого начала</p><div class="term">tmux new -s rabota      создать
+Ctrl+B, потом d         свернуть: пропала с экрана, но живёт
+tmux attach -t rabota   вернуть то же самое</div><p><b>Совет.</b> Если что-то нужно часто прятать и возвращать, сделайте это отдельной <b>сессией</b>, а не окном. Сессии сворачиваются и возвращаются одной командой, без склада.</p></div>
+    </div>
+    <section class="quiz">
+      <h3>Проверь себя: окно «rabota»</h3>
+      <div class="q" data-q data-extra>
+        <p class="qt">Вы закрыли окно «rabota» через exit. Как открыть его же, со старым выводом и программами?</p>
+        <div class="opts">
+          <button class="opt" data-why="Это создаст новое пустое окно с тем же именем, старого содержимого там не будет.">tmux new-window -n rabota</button>
+          <button class="opt" data-ok data-why="Верно. exit завершает оболочку окна, и содержимое пропадает. Чтобы можно было вернуться, окно надо было перенести на склад или свернуть сессию.">Никак: закрытое окно не вернуть, можно только создать новое с тем же именем</button>
+          <button class="opt" data-why="attach возвращает в сессию, а закрытого окна в ней уже нет.">tmux attach -t rabota</button>
+        </div>
+        <p class="why" hidden></p>
+      </div>
+      <div class="q" data-q data-extra>
+        <p class="qt">Как убрать окно «rabota» из зелёной полосы, чтобы оно продолжало работать?</p>
+        <div class="opts">
+          <button class="opt" data-why="Ctrl+B, d сворачивает всю сессию, а не одно окно.">Ctrl+B, потом d</button>
+          <button class="opt" data-ok data-why="Верно. Окно переезжает в сессию sklad, исчезает из вашей полосы и живёт там.">Перенести его в другую сессию: Ctrl+B, : и move-window -t sklad:</button>
+          <button class="opt" data-why="& закрывает окно насовсем.">Ctrl+B, потом &amp;</button>
+        </div>
+        <p class="why" hidden></p>
+      </div>
+      <div class="q" data-q data-extra>
+        <p class="qt">Окно «rabota» лежит в сессии sklad. Как вернуть его к себе?</p>
+        <div class="opts">
+          <button class="opt" data-ok data-why="Верно. -s значит «откуда», sklad:rabota — окно rabota из сессии sklad.">Ctrl+B, : и move-window -s sklad:rabota</button>
+          <button class="opt" data-why="Это создаст ещё одну сессию со складом, окно не вернётся.">tmux new -s sklad</button>
+          <button class="opt" data-why="Это новое пустое окно, а не то же самое.">Ctrl+B, потом c</button>
+        </div>
+        <p class="why" hidden></p>
+      </div>
+    </section>
     <section class="lab">
       <div class="lab-title"><span class="tag">тренажёр</span><h3>tmux по-настоящему</h3></div>
       <p class="lab-hint">Нажимайте команды в любом порядке, как на настоящем сервере. Попробуйте: создать сессию «rabota», запустить задачу, свернуть, посмотреть список, вернуться и убедиться, что задача шла без вас.</p>
+      <p class="lab-hint">Второе задание, со складом: создать новое окно (c) и назвать его «rabota» (,), запустить в нём задачу, создать склад (<code>tmux new -d -s sklad</code>), спрятать окно (<code>move-window -t sklad:</code>), убедиться, что оно пропало из полосы, и вернуть его (<code>move-window -s sklad:rabota</code>). Для сравнения закройте окно через &amp;: вернуть его уже не получится.</p>
       <div class="tmsim" id="tc-screen"></div>
       <div class="lab-hint">В оболочке:</div>
       <div class="row" id="tc-shell"></div>
@@ -2139,9 +2187,10 @@ anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначал
   }
   var PTS = [10, 5, 1]; // first try, second try, later
   var DAYS = [0, 1, 3, 7, 14];
-  var QCOUNT = {};
-  QUIZZED.forEach(function (lid) { QCOUNT[lid] = document.getElementById("t-" + lid).content.querySelectorAll("[data-q]").length; });
+  var QCOUNT = {}, XCOUNT = {};
+  QUIZZED.forEach(function (lid) { QCOUNT[lid] = document.getElementById("t-" + lid).content.querySelectorAll("[data-q]:not([data-extra])").length; XCOUNT[lid] = document.getElementById("t-" + lid).content.querySelectorAll("[data-q][data-extra]").length; });
   function qids(lid) { var a = []; for (var i = 0; i < QCOUNT[lid]; i++) a.push(lid + "-" + i); return a; }
+  function allQids(lid) { var a = qids(lid); for (var i = 0; i < XCOUNT[lid]; i++) a.push(lid + "-x" + i); return a; }
   function solvedCount(lid) { return qids(lid).filter(function (q) { return pts[q] != null; }).length; }
   function lessonPts(lid) { return qids(lid).reduce(function (s, q) { return s + (pts[q] || 0); }, 0); }
   function isDone(lid) { return solvedCount(lid) === QCOUNT[lid]; }
@@ -2166,7 +2215,7 @@ anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначал
   function blocker(id) { var i = (id === "final" || id === "exam") ? QUIZZED.length : QUIZZED.indexOf(id); for (var j = 0; j < i; j++) if (!isDone(QUIZZED[j])) return QUIZZED[j]; return null; }
   function dueCount(lids) {
     var now = Date.now(), c = 0;
-    lids.forEach(function (l) { qids(l).forEach(function (q) { if (srs[q] && srs[q].due <= now) c++; }); });
+    lids.forEach(function (l) { allQids(l).forEach(function (q) { if (srs[q] && srs[q].due <= now) c++; }); });
     return c;
   }
   function learnedLessons() { return QUIZZED.filter(function (l) { return solvedCount(l) > 0; }); }
@@ -2178,7 +2227,7 @@ anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначал
   }
   function pick(lids, n) {
     var now = Date.now(), pool = [];
-    lids.forEach(function (l) { qids(l).forEach(function (q) {
+    lids.forEach(function (l) { allQids(l).forEach(function (q) {
       var s = srs[q];
       var pri = !s ? 1 : s.due <= now ? 0 : 2;
       pool.push({ q: q, k: pri * 10 + (s ? s.box : 0) + Math.random() });
@@ -2187,8 +2236,8 @@ anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначал
     return pool.slice(0, n).map(function (x) { return x.q; });
   }
   function qnode(qid) {
-    var lid = qid.split("-")[0], i = +qid.split("-")[1];
-    var n = $("t-" + lid).content.querySelectorAll("[data-q]")[i].cloneNode(true);
+    var lid = qid.split("-")[0], key = qid.split("-")[1], x = key[0] === "x", i = +(x ? key.slice(1) : key);
+    var n = $("t-" + lid).content.querySelectorAll(x ? "[data-q][data-extra]" : "[data-q]:not([data-extra])")[i].cloneNode(true);
     n.setAttribute("data-qid", qid);
     n.insertBefore(el("span", { class: "from" }, "из урока «" + NAME[lid] + "»"), n.firstChild);
     return n;
@@ -2291,8 +2340,10 @@ anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначал
   }
 
   function wireLesson(main, id) {
-    var qs = main.querySelectorAll(".lesson [data-q]");
+    var qs = main.querySelectorAll(".lesson [data-q]:not([data-extra])");
     qs.forEach(function (q, i) { q.setAttribute("data-qid", id + "-" + i); });
+    var xs = main.querySelectorAll(".lesson [data-q][data-extra]");
+    xs.forEach(function (q, i) { q.setAttribute("data-qid", id + "-x" + i); });
     var lastQuiz = main.querySelector(".quiz[data-lesson]");
     if (lastQuiz) lastQuiz.insertBefore(el("h3", null, "Итоговые вопросы урока"), lastQuiz.firstChild);
     var st = el("div", { class: "lstatus", id: "lstatus" });
@@ -2312,6 +2363,7 @@ anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначал
       }
     }
     qs.forEach(function (q) { wireQ(q, "lesson", upd); });
+    xs.forEach(function (q) { wireQ(q, "review", function () { renderNav(id); }); });
     upd();
     var i = QUIZZED.indexOf(id);
     if (i > 0) {
@@ -2790,6 +2842,8 @@ anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначал
     var shell = $("tc-shell");
     shell.appendChild(sh("tmux", function () { if (att) return nestedErr(); var n = String(nextAuto++); while (S[n]) n = String(nextAuto++); newSession(n); say("Создана сессия «" + n + "». Имя — просто номер, лучше давать свои имена.", "ok"); }));
     shell.appendChild(sh("tmux new -s rabota", function () { if (att) return nestedErr(); if (S.rabota) { say("duplicate session: rabota", "bad"); say("Такая сессия уже есть. Чтобы в неё войти: tmux attach -t rabota", "hl"); return; } newSession("rabota"); say("Создана сессия «rabota», вы внутри.", "ok"); }));
+    shell.appendChild(sh("tmux new -d -s sklad", function () { if (S.sklad) { say("duplicate session: sklad", "bad"); say("Склад уже есть.", "hl"); return; } S.sklad = { wins: [{ name: "bash", panes: 1, task: null }], cur: 0 }; say("Создана сессия-склад «sklad». Флаг -d: создать, но не входить. Вы остались, где были.", "ok"); }));
+    shell.appendChild(sh("tmux list-windows -t sklad", function () { if (!S.sklad) { say("can't find session: sklad", "bad"); return; } S.sklad.wins.forEach(function (w, i) { say(i + ": " + w.name + (w.task ? " (задача " + Math.floor(w.task.p) + "%)" : ""), ""); }); }));
     shell.appendChild(sh("tmux ls", function () {
       if (att) { say("(команда сработает и внутри tmux, но обычно её набирают в оболочке)", "dim"); }
       var n = Object.keys(S); if (!n.length) { say("no server running on /tmp/tmux-1001/default", "bad"); say("Сессий нет ни одной.", "hl"); return; }
@@ -2805,7 +2859,35 @@ anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначал
     P("n", "n — следующее окно", function () { var s = cur(); s.cur = (s.cur + 1) % s.wins.length; });
     P("%", "% — разрезать", function () { var w = cur().wins[cur().cur]; if (w.panes < 2) w.panes = 2; else say("В тренажёре максимум две панели.", "dim"); });
     P("[", "[ — прокрутка", function () { scroll = true; });
-    P(",", ", — переименовать окно", function () { var w = cur().wins[cur().cur]; w.name = w.name === "logi" ? "bash" : "logi"; say("Окно переименовано в «" + w.name + "».", "ok"); });
+    P(",", ", — переименовать окно", function () { var w = cur().wins[cur().cur]; if (w.name === "rabota") { say("Окно уже называется «rabota».", "dim"); return; } if (cur().wins.some(function (x) { return x.name === "rabota"; })) { say("В этой сессии уже есть окно «rabota».", "dim"); return; } w.name = "rabota"; say("Окно переименовано в «rabota».", "ok"); });
+    P("&", "& — закрыть окно насовсем", function () {
+      var s = cur(), w = s.wins[s.cur];
+      say("kill-window " + w.name + "? (y/n) → y", "hl");
+      if (w.task && w.task.p < 100) say("Задача в окне «" + w.name + "» получила сигнал обрыва и умерла.", "bad");
+      say("Окно «" + w.name + "» закрыто насовсем. Вернуть его нельзя, только создать новое пустое.", "bad");
+      s.wins.splice(s.cur, 1);
+      if (!s.wins.length) { var n = att; delete S[n]; att = null; say("[exited] Это было последнее окно, сессия «" + n + "» закрылась.", "bad"); return; }
+      s.cur = Math.min(s.cur, s.wins.length - 1);
+    });
+    P(":", ": move-window -t sklad:", function () {
+      if (!S.sklad) { say("can't find session: sklad", "bad"); say("Склада ещё нет. Создайте: tmux new -d -s sklad", "hl"); return; }
+      if (att === "sklad") { say("Вы и так в сессии sklad.", "dim"); return; }
+      var s = cur(), w = s.wins.splice(s.cur, 1)[0];
+      S.sklad.wins.push(w);
+      say("Окно «" + w.name + "» переехало на склад. Из полосы пропало, но живёт" + (w.task && w.task.p < 100 ? ", задача идёт дальше." : "."), "ok");
+      if (!s.wins.length) { var n = att; delete S[n]; att = null; say("Это было последнее окно, поэтому сессия «" + n + "» опустела и закрылась. Окно цело, оно на складе.", "hl"); return; }
+      s.cur = Math.min(s.cur, s.wins.length - 1);
+    });
+    P(":", ": move-window -s sklad:rabota", function () {
+      if (!S.sklad) { say("can't find session: sklad", "bad"); return; }
+      if (att === "sklad") { say("Вы сами в сессии sklad, возвращать окно некуда.", "dim"); return; }
+      var k = -1; S.sklad.wins.forEach(function (x, i) { if (x.name === "rabota") k = i; });
+      if (k < 0) { say("can't find window: rabota", "bad"); say("На складе нет окна «rabota». Посмотреть, что там: tmux list-windows -t sklad", "hl"); return; }
+      var w = S.sklad.wins.splice(k, 1)[0];
+      if (!S.sklad.wins.length) delete S.sklad;
+      cur().wins.push(w); cur().cur = cur().wins.length - 1;
+      say("Окно «rabota» вернулось в полосу, со всем выводом" + (w.task ? ": задача " + Math.floor(w.task.p) + "%." : "."), "ok");
+    });
     var inn = $("tc-in");
     function I(label, fn) { var b = el("button", { class: "btn mono" }); b.textContent = label; b.addEventListener("click", function () { if (!att) return; fn(); draw(); }); inn.appendChild(b); }
     I("запустить долгую задачу", function () { var w = cur().wins[cur().cur]; if (w.task && w.task.p < 100) { say("Задача уже идёт в этом окне.", "dim"); return; } w.task = { p: 0 }; say("Импорт базы запущен в окне " + cur().cur + ".", "ok"); });
@@ -3226,7 +3308,7 @@ anna@server:~$ rm old.log</div><p><b>Как правильно.</b> Сначал
     }
     $("ex-start").addEventListener("click", function () {
       box.innerHTML = ""; res.hidden = true;
-      var all = []; QUIZZED.forEach(function (l) { all = all.concat(qids(l)); });
+      var all = []; QUIZZED.forEach(function (l) { all = all.concat(allQids(l)); });
       for (var i = all.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = all[i]; all[i] = all[j]; all[j] = t; }
       var pickd = all.slice(0, EXAM_N), answered = 0, right = 0;
       pickd.forEach(function (qid, n) {
