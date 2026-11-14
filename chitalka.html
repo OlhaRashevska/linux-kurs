@@ -504,12 +504,15 @@ table.matrix { border-collapse: collapse; font-size: .93rem; min-width: 420px; }
     <div class="ex"><p class="sit">Как это у вас на сервере.</p><p>Вы и ваши агенты в tmux работаете под <b>вашим</b> пользователем, не под root. Поэтому агент может испортить только то, что можно вам, а системные файлы и чужие папки ему недоступны. Это и есть защита. Если когда-нибудь кто-то попросит «запусти это от root» или «через sudo» — сначала спросите, зачем.</p></div>
     <h3>Примеры из жизни</h3>
     <div class="examples">
-      <div class="ex"><p class="sit">Вы спросили систему, кто вы такой. Она показала ваше удостоверение целиком.</p><div class="term">uid=1001(anna) gid=1001(anna) groups=1001(anna),1005(buh)</div><p><b>Как читать.</b> <code>uid</code> — ваш номер и имя. <code>gid</code> — основная группа. <code>groups</code> — все группы, где вы состоите. Здесь Анна в двух группах: своей личной <code>anna</code> и <code>buh</code> (бухгалтерия).</p></div>
+      <div class="ex"><p class="sit">Вы спросили систему, кто вы такой. Она показала ваше удостоверение целиком.</p><div class="term">anna@server:~$ id
+uid=1001(anna) gid=1001(anna) groups=1001(anna),1005(buh)</div><p><b>Как читать.</b> <code>uid</code> — ваш номер и имя. <code>gid</code> — основная группа. <code>groups</code> — все группы, где вы состоите. Здесь Анна в двух группах: своей личной <code>anna</code> и <code>buh</code> (бухгалтерия).</p><p><b>Как спросить самой.</b> Наберите в терминале <code>id</code> и нажмите Enter. Покажет вас целиком. Есть и короче:</p><ul><li><code>whoami</code> — только имя: «кто я»;</li><li><code>groups</code> — только список ваших групп;</li><li><code>id oleg</code> — удостоверение другого пользователя, например коллеги Олега.</li></ul><p>Все эти команды только смотрят и ничего не меняют, их можно пробовать без страха.</p></div>
       <div class="ex"><p class="sit">В начале строки терминала видно, кто вы и где.</p><div class="term">anna@server:~$
-root@server:~#</div><p><b>Как читать.</b> До <code>@</code> — пользователь, после — имя машины, <code>~</code> — вы в домашней папке. Знак <code>$</code> значит обычный пользователь, <code>#</code> значит root. Увидели <code>#</code> — будьте осторожны, система вас не остановит.</p></div>
-      <div class="ex"><p class="sit">В списке процессов видно, кто от чьего имени работает.</p><div class="term">www-data  1840  nginx: worker process
+root@server:~#</div><p><b>Как читать.</b> До <code>@</code> — пользователь, после — имя машины, <code>~</code> — вы в домашней папке. Знак <code>$</code> значит обычный пользователь, <code>#</code> значит root. Увидели <code>#</code> — будьте осторожны, система вас не остановит. Набирать ничего не нужно: эта строка видна всегда, перед каждой командой.</p></div>
+      <div class="ex"><p class="sit">В списке процессов видно, кто от чьего имени работает.</p><div class="term">anna@server:~$ ps -eo user,pid,args
+USER       PID  COMMAND
+www-data  1840  nginx: worker process
 anna      4120  python bot.py
-root         1  systemd</div><p><b>Как читать.</b> Первый столбец — владелец процесса. Веб-сервер работает под <code>www-data</code>, бот Анны — под <code>anna</code>, главный системный процесс — под <code>root</code>.</p></div>
+root         1  systemd</div><p><b>Как читать.</b> Первый столбец — владелец процесса. Веб-сервер работает под <code>www-data</code>, бот Анны — под <code>anna</code>, главный системный процесс — под <code>root</code>. Команда <code>ps -eo user,pid,args</code> показывает все процессы: кто (user), номер (pid), что запущено (args). Список длинный; подробно о процессах — урок 5.</p></div>
     </div>
     <section class="quiz">
       <h3>Проверь себя на примерах</h3>
